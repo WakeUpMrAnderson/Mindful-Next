@@ -22,6 +22,26 @@ all rights to the original design and code remain with Adrian Zumbrunnen
 and Hinderling Volkart. The changes here (MV3 migration, CSP-safe rebuild,
 bug fixes) exist to keep a beloved tool alive on modern Chrome.
 
+## License & attribution
+
+- **Original Mindful design & code** — © [Adrian Zumbrunnen](https://twitter.com/azumbrunnen_)
+  and [Hinderling Volkart](http://www.hinderlingvolkart.com), **all rights
+  reserved**. The 2016 package shipped no license; nothing in this
+  repository grants rights over it. The recovered sources, the original
+  icon font files (`src/src/core/ui/res/frontkit.*`) and the original
+  assets are redistributed here **for personal, non-commercial use only**,
+  in order to keep a dead tool working on modern Chrome.
+- **This rebuild's own additions** — the encrypted vault, settings panel,
+  shortcut remapping, caret overlay, MV3 tooling, tests and docs — are
+  shared under the same terms: personal, non-commercial, educational use;
+  attribution appreciated; no warranty.
+- **Rights holders**: if you hold rights to the original work and object
+  to this repository, open an issue and it will be taken down promptly.
+  A friendly word from the original authors would also be very welcome.
+- **Third-party components** — recovered from the bundle and re-attributed
+  in [NOTICE](NOTICE): lodash (MIT), ms (MIT), lz-string (WTFPL v2),
+  Roboto Mono (Apache 2.0).
+
 ## New in this rebuild
 
 The original's editor — the flow menu, checkboxes, day/night and hide
