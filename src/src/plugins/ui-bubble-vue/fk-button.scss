@@ -1,0 +1,9 @@
+exports = module.exports = require("./../../../node_modules/css-loader/lib/css-base.js")();
+exports.push([module.id, ".fk-button {\n  -webkit-transition: color .15s ease-in-out, border-color .15s ease-in-out, background .15s ease-in-out;\n  transition: color .15s ease-in-out, border-color .15s ease-in-out, background .15s ease-in-out;\n  border: 1px solid #ddd;\n  display: inline-block;\n  border-radius: 100%;\n  text-align: center;\n  position: relative;\n  cursor: pointer;\n  margin: 5px 2px;\n  font-size: 12px;\n  line-height: 36px;\n  vertical-align: middle;\n  padding: 0;\n  height: 35px;\n  width: 35px;\n  z-index: 10;\n}\n\n.fk-button--active {\n  background-color: #000 !important;\n  border-color: #000 !important;\n  color: #fff !important;\n}\n\n.fk-button:hover, .fk-button--focused {\n  border-color: #000;\n  color: #000;\n}\n\n.fk-button:first-child {\n  margin-left: 5px;\n}\n\n.fk-button:last-child {\n  margin-right: 5px;\n}\n", ""]);
+
+
+//////////////////
+// WEBPACK FOOTER
+// ./~/css-loader!./~/postcss-loader!./~/sass-loader?outputStyle=expanded!./src/plugins/ui-bubble-vue/fk-button.scss
+// module id = 336
+// module chunks = 0

@@ -1,0 +1,383 @@
+@charset "UTF-8";
+@keyframes fadeIn {
+    from {
+        opacity: 0
+    }
+    to {
+        opacity: 1
+    }
+}
+
+* {
+    outline: none;
+    box-sizing: border-box
+}
+
+body article,
+body .fk-empty {
+    transition: opacity .2s ease-in-out;
+    min-height: 80vh
+}
+.metakey a {
+    cursor: pointer
+}
+.hide article {
+    pointer-events: none;
+    opacity: 0
+}
+
+.mindful-toggle {
+    transition: all .3s ease-in-out;
+    color: rgba(0, 0, 0, .54);
+    cursor: pointer;
+    position: fixed;
+    font-size: 22px;
+    bottom: 16px;
+    left: 20px
+}
+
+.mindful-toggle--author {
+    transform: scale(.9);
+    font-size: 12px;
+    bottom: 20px;
+    right: 52px;
+    opacity: 0;
+    left: auto
+}
+
+.fk-icon-hide,
+.fk-icon-show {
+    left: 54px;
+    bottom: 14px
+}
+
+.author .mindful-toggle--author {
+    opacity: 1
+}
+
+/* The author credit is opacity: 0 unless .author is on <html>. An invisible
+   element still hit-tests, so its hidden @azumbrunnen_ link was stealing
+   real clicks aimed at the settings gear beneath it (right-rail overlap;
+   x.com redirect bug) — keep it click-transparent while hidden, and only
+   make the link hit-testable while the credit is actually shown. */
+.mindful-toggle--author {
+    pointer-events: none
+}
+
+.author:not(.focus) .mindful-toggle--author a {
+    pointer-events: auto
+}
+
+.mindful-toggle a {
+    border: none
+}
+
+.night .mindful-toggle {
+    color: rgba(255, 255, 255, .54)
+}
+
+.night .fk-icon-nightmode,
+.day .fk-icon-sun {
+    transform: scale(.75);
+    opacity: 0
+}
+
+.hide .fk-icon-hide,
+.show .fk-icon-show {
+    opacity: 0
+}
+
+.focus .mindful-toggle {
+    transform: scale(.75);
+    opacity: 0
+}
+
+.fk-icon-info {
+    right: 20px;
+    left: auto
+}
+
+/* F-settings: the settings gear lives on the RIGHT rail, next to info —
+   the left rail slots (sun/moon at 20, hide/show at 54) were taken and
+   the default left: 20px made the gear overlap the moon */
+.fk-icon-settings {
+    right: 54px;
+    left: auto
+}
+
+article p:first-child[fk-placeholder]:after {
+    content: attr(fk-placeholder);
+    -webkit-user-select: none;
+    display: inline-block;
+    user-select: none;
+    opacity: .34
+}
+
+article p:first-child.fk-inlineMenu-offCanvas[fk-placeholder]:after {
+    content: ''
+}
+
+article p:first-child:empty,
+p:first-child[fk-placeholder] {
+    min-height: 1.55em
+}
+
+.night {
+    text-rendering: geometricPrecision
+}
+
+.night body {
+    background: #202328
+}
+
+.night article {
+    color: #dadada
+}
+
+.night h2 {
+    color: rgba(255, 255, 255, .54)
+}
+
+.night blockquote {
+    border-left-color: #dadada
+}
+
+.night .fk-ui .fk-ui-dots span {
+    border: 1px solid rgba(255, 255, 255, 0.75)
+}
+
+.night .fk-ui .fk-ui-dots:hover span {
+    border: 1px solid rgba(255, 255, 255, 1)
+}
+
+.night .fk-ui-dots.fk-active span,
+.night .fk-ui .fk-ui-dots.fk-partial span:nth-child(2),
+.night .fk-ui .fk-ui-dots.fk-end span:nth-child(3),
+.night .fk-ui .fk-ui-dots.fk-start span:nth-child(1) {
+    background: #dadada
+}
+
+.night a {
+    border-bottom: 1px solid #fff;
+    color: inherit
+}
+
+body {
+    animation: fadeIn .2s ease-in-out .5s forwards;
+    font-family: Menlo, 'Roboto Mono', 'Noto Sans', sans-serif;
+    transition: background .2s ease-in-out, width .25s ease-in-out, max-width .25s ease-in-out;
+    background: #f6f6f6;
+    line-height: 1.65em;
+    padding: 54px 0 0;
+    /* the editor column width is user-settable (settings panel, 30-90%):
+       --editor-max-cap relaxes the 688px cap, and the min() keeps a
+       minimum 24px gap per side on narrow windows */
+    max-width: min(var(--editor-max-cap, 688px), calc(100vw - 48px));
+    font-size: 16px;
+    margin: 0 auto;
+    opacity: 0;
+    color: #111;
+    width: var(--editor-width, 80%)
+}
+
+.mnd-logo {
+    background: url(../assets/mindful-dark.png) no-repeat center center;
+    transition: opacity .2s ease-in-out;
+    background-size: 196px;
+    pointer-events: none;
+    position: fixed;
+    user-select: none;
+    opacity: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    top: 0
+}
+
+.show .mnd-logo {
+    opacity: 0
+}
+
+.hide .mnd-logo {
+    transition-delay: .15s;
+    opacity: 1
+}
+
+.night .mnd-logo {
+    background: url(../assets/mindful-light.png) no-repeat center center;
+    background-size: 196px
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote {
+    margin: 0 0 1.5em;
+    font-size: 1em;
+    min-width: 12px;
+    padding: 0
+}
+
+h1,
+h2 {
+    position: relative
+}
+
+h1 {
+    margin-bottom: 1.5rem;
+    line-height: 1.45em;
+    font-size: 1.65em
+}
+
+hr {
+    height: auto;
+    border: none;
+    margin: 1.4em 0
+}
+
+hr:after {
+    content: '';
+    display: block;
+    height: 2px;
+    border-radius: 1px;
+    background: rgba(0, 0, 0, .28)
+}
+
+.night hr:after {
+    background: rgba(255, 255, 255, .32)
+}
+
+hr.fk-active:after {
+    opacity: .45
+}
+
+h1+h2 {
+    margin-top: -1.25rem
+}
+
+h2 {
+    color: #727272
+}
+
+ul,
+ol {
+    list-style: none;
+    margin: 0 0 1.5em;
+    padding: 0
+}
+
+ul li:before {
+    display: inline-block;
+    margin-left: -20px;
+    margin-right: 10px;
+    content: '–';
+    width: 10px
+}
+
+ol {
+    counter-reset: ol0
+}
+
+ol li.l0 {
+    margin-left: 0
+}
+
+ol li.l1 {
+    margin-left: 30px
+}
+
+ul li.l0 {
+    margin-left: 20px
+}
+
+ul li.l1 {
+    margin-left: 40px
+}
+
+ol li:not(.l0):before {
+    margin-left: -1.8em;
+    content: counter(ol0) ". ";
+    counter-increment: ol0
+}
+
+ol .l0:before {
+    content: counter(ol1) ". ";
+    counter-increment: ol1;
+    margin-left: 0
+}
+
+ol .l1:before {
+    margin-lef: 1.8em;
+    content: counter(ol2) ". ";
+    counter-increment: ol2
+}
+
+ol li:not(.l0) + .l0 {
+    counter-reset: ol1
+}
+
+ol .l0:not(.l1) + .l1 {
+    counter-reset: ol2
+}
+
+blockquote {
+    border-left: 3px solid #000;
+    margin-left: calc(-.75em - 3px);
+    padding-left: .75em
+}
+
+a {
+    border-bottom: 1px solid #000;
+    text-decoration: none;
+    position: relative;
+    color: inherit
+}
+
+article a:before {
+    transition: .175s ease-in-out .25s;
+    content: '⌘ + click to navigate';
+    background: rgba(0, 0, 0, .9);
+    transform: translate3d(-50%, 0, 0);
+    pointer-events: none;
+    display: inline-block;
+    white-space: nowrap;
+    border-radius: 3px;
+    position: absolute;
+    font-size: 13px;
+    padding: 4px 10px;
+    z-index: 10;
+    color: #fff;
+    left: 50%;
+    top: 32px;
+    opacity: 0
+}
+
+a:hover:before {
+    transform: translate3d(-50%, 0, 0);
+    opacity: 1
+}
+
+/* --- inline SVG icon buttons (frontkit icon font replacement) --- */
+button.mindful-toggle {
+    background: none;
+    border: 0;
+    padding: 0;
+    font: inherit
+}
+button.mindful-toggle:before,
+button.mindful-toggle:after {
+    content: none !important
+}
+button.mindful-toggle:focus-visible {
+    outline: 1px solid rgba(0, 0, 0, .4)
+}
+.night button.mindful-toggle:focus-visible {
+    outline-color: rgba(255, 255, 255, .4)
+}
+button.mindful-toggle svg {
+    display: block
+}

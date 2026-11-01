@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Mindful (Next)",
+  "description": "A space for your thoughts, ideas and ongoing tasks",
+  "version": "1.0.0",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuxpScpnP5v9lhbrMlEkykfjVVQu6Xzz8mksJZ8/xklamnhlZWu/YpDbQKNpP6stRWsrfKimQrjI/3FfP1R0Nb6dDT1i8k3smQYkZT5felbnH11nV0Zn/5E+BkpvuWfAT67V+nXB0RcS/Zr5xnr5ib65101GpDsg37ZOtynvJR7F04IQr8hyDYtK3OSwkdnfvdPL8+rxlqHIspBYWFrJbrdoGP4t0s6cK4LW8ydD83uXS+Zocp5w9AWJGoj4ywBFpXcQBiwfs7GM8Z5jfwxjLKyn8krgEmbuxa3Xy9K8Z1FpRcuYK50wR0mSjodFR6ifcqtYT9Q9PBCln0AaHoKTQqwIDAQAB",
+  "offline_enabled": true,
+  "icons": {
+    "16": "assets/icon16.png",
+    "48": "assets/icon48.png",
+    "128": "assets/icon128.png"
+  },
+  "chrome_url_overrides": {
+    "newtab": "index.html"
+  },
+  "permissions": [
+    "storage"
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
+}

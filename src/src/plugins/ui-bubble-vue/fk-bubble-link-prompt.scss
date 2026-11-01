@@ -1,0 +1,9 @@
+exports = module.exports = require("./../../../node_modules/css-loader/lib/css-base.js")();
+exports.push([module.id, ".fk-bubble__link-prompt {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n}\n\n.fk-bubble__link-prompt__input {\n  font-family: Menlo, 'Roboto Mono', serif;\n  text-rendering: geometricPrecision;\n  -webkit-appearance: none;\n  background: transparent;\n  box-sizing: border-box;\n  min-width: 220px;\n  margin: 4px 2px !important;\n  padding: 4px !important;\n  font-size: 12px;\n  color: rgba(0, 0, 0, 0.54);\n  outline: none;\n  border: none;\n  height: 36px;\n}\n\n.fk-bubble__link-prompt__input::-ms-clear {\n  display: none;\n  width: 0;\n  height: 0;\n}\n\n.fk-bubble__link-prompt__input:focus {\n  border: none;\n  outline: none;\n}\n\nhtml.fk-touch-device-with-native-bubble .fk-bubble__link-prompt__input {\n  font-size: 16px;\n}\n\na.fk-selected-link {\n  background: Highlight;\n  color: HighlightText;\n}\n", ""]);
+
+
+//////////////////
+// WEBPACK FOOTER
+// ./~/css-loader!./~/postcss-loader!./~/sass-loader?outputStyle=expanded!./src/plugins/ui-bubble-vue/fk-bubble-link-prompt.scss
+// module id = 339
+// module chunks = 0

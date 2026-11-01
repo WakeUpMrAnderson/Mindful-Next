@@ -1,0 +1,337 @@
+/* ==========================================================================
+   Pill design — the single visual source for the two floating toolbars:
+
+   - flow-menu        (.fk-ui-inlineMenu, empty line, under the dots)
+   - selection bubble (.fk-bubble, selected text, above the selection)
+
+   Everything a user SEES lives here: capsule, glass, button circles,
+   hover/focus/active states, night theme, entrance/exit choreography.
+   The legacy webpack-extracted style blobs for these two components are
+   retired; only real CSS remains. Parity is enforced by
+   tests/pill.spec.js (bubble computed styles must equal the pill's).
+   ========================================================================== */
+
+/* ---------- shared capsule (day) ---------- */
+
+.fk-ui .fk-ui-inlineMenu,
+.fk-ui .fk-bubble {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    padding: 3px 12px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.78);
+    -webkit-backdrop-filter: blur(24px) saturate(1.9);
+    backdrop-filter: blur(24px) saturate(1.9);
+    border: 1px solid rgba(0, 0, 0, 0.07);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05), 0 8px 32px rgba(0, 0, 0, 0.14);
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(4px) scale(0.96);
+    transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out, visibility 0.2s;
+}
+
+/* ---------- shared capsule (night) ---------- */
+
+.night .fk-ui .fk-ui-inlineMenu,
+.night .fk-ui .fk-bubble {
+    background: rgba(44, 48, 54, 0.92);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.3), 0 8px 32px rgba(0, 0, 0, 0.5);
+    color: #dadada;
+}
+
+/* ---------- shown state ---------- */
+
+.fk-ui .fk-ui-inlineMenu.fk-show,
+.fk-ui .fk-bubble.fk-bubble--visible {
+    visibility: visible;
+    opacity: 1;
+    transform: none;
+}
+
+/* ---------- per-component positioning mechanics ---------- */
+
+.fk-ui .fk-ui-inlineMenu {
+    margin-top: 4px;
+    z-index: 99991;
+}
+
+.fk-ui .fk-bubble {
+    top: 0;
+    left: 0;
+    min-width: 10px;
+    z-index: 99995;
+    pointer-events: none;
+}
+
+.fk-ui .fk-bubble.fk-bubble--visible {
+    pointer-events: auto;
+}
+
+/* mobile: dock to the top edge instead of floating over the selection */
+html.fk-touch-device-with-native-bubble .fk-bubble {
+    border-radius: 0;
+    position: fixed;
+    z-index: 10000;
+    left: 0 !important;
+    width: 100%;
+    justify-content: center;
+}
+
+/* ---------- flow-menu list ---------- */
+
+.fk-inlineMenu-offCanvas {
+    text-indent: -12800px;
+}
+
+.fk-ui .fk-ui-inlineMenu-list {
+    display: block;
+    padding: 0;
+    margin: 0;
+}
+
+.fk-ui .fk-ui-inlineMenu-list li {
+    text-align: center;
+    display: inline-block;
+    position: relative;
+    overflow: hidden;
+}
+
+/* ---------- button circle ---------- */
+
+/* flex-centering matters: buttons carry data-icon themselves, so they
+   must not depend on the icon stylesheet's [data-icon] rule (which loses
+   the specificity fight against .fk-ui .fk-button) — otherwise block-level
+   SVG icons park in the top-left corner instead of centering. */
+.fk-ui .fk-button {
+    transition: color 0.15s ease-in-out, border-color 0.15s ease-in-out,
+        background 0.15s ease-in-out, opacity 0.3s ease-in-out,
+        transform 0.3s ease-in-out 0.01s, visibility 0s;
+    border: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 100%;
+    position: relative;
+    cursor: pointer;
+    margin: 0 2px;
+    font-size: 12px;
+    line-height: 1;
+    padding: 0;
+    height: 35px;
+    width: 35px;
+    z-index: 10;
+}
+
+/* hidden → pop in (both hosts) */
+.fk-ui .fk-ui-inlineMenu .fk-button--inlineMenu,
+.fk-ui .fk-bubble .fk-button {
+    transform: scale(0.1);
+    visibility: hidden;
+    opacity: 0;
+}
+
+.fk-ui .fk-show .fk-button--inlineMenu,
+.fk-ui .fk-bubble--visible .fk-button {
+    visibility: visible;
+    transform: scale(1);
+}
+
+/* stagger across the flow-menu list */
+.fk-ui .fk-show li:nth-child(1) .fk-button { transition-delay: 0ms; }
+.fk-ui .fk-show li:nth-child(2) .fk-button { transition-delay: 10ms; }
+.fk-ui .fk-show li:nth-child(3) .fk-button { transition-delay: 20ms; }
+.fk-ui .fk-show li:nth-child(4) .fk-button { transition-delay: 30ms; }
+.fk-ui .fk-show li:nth-child(5) .fk-button { transition-delay: 40ms; }
+.fk-ui .fk-show li:nth-child(6) .fk-button { transition-delay: 50ms; }
+.fk-ui .fk-show li:nth-child(7) .fk-button { transition-delay: 60ms; }
+.fk-ui .fk-show li:nth-child(8) .fk-button { transition-delay: 70ms; }
+.fk-ui .fk-show li:nth-child(9) .fk-button { transition-delay: 80ms; }
+.fk-ui .fk-show li:nth-child(10) .fk-button { transition-delay: 90ms; }
+.fk-ui .fk-show li:nth-child(11) .fk-button { transition-delay: 100ms; }
+
+.fk-ui .fk-hide li:nth-child(1) .fk-button { transition-delay: 100ms; }
+.fk-ui .fk-hide li:nth-child(2) .fk-button { transition-delay: 90ms; }
+.fk-ui .fk-hide li:nth-child(3) .fk-button { transition-delay: 80ms; }
+.fk-ui .fk-hide li:nth-child(4) .fk-button { transition-delay: 70ms; }
+.fk-ui .fk-hide li:nth-child(5) .fk-button { transition-delay: 60ms; }
+.fk-ui .fk-hide li:nth-child(6) .fk-button { transition-delay: 50ms; }
+.fk-ui .fk-hide li:nth-child(7) .fk-button { transition-delay: 40ms; }
+.fk-ui .fk-hide li:nth-child(8) .fk-button { transition-delay: 30ms; }
+.fk-ui .fk-hide li:nth-child(9) .fk-button { transition-delay: 20ms; }
+.fk-ui .fk-hide li:nth-child(10) .fk-button { transition-delay: 10ms; }
+.fk-ui .fk-hide li:nth-child(11) .fk-button { transition-delay: 0ms; }
+
+/* ---------- button states (day) ---------- */
+
+.fk-ui .fk-button--active {
+    background-color: #000 !important;
+    border-color: #000 !important;
+    color: #fff !important;
+}
+
+.fk-ui .fk-button:hover,
+.fk-ui .fk-button--focused {
+    border-color: #000;
+    color: #000;
+}
+
+.fk-ui .fk-ui-inlineMenu .fk-button--inlineMenu:hover,
+.fk-ui .fk-bubble .fk-button:hover {
+    background: rgba(0, 0, 0, 0.08);
+    border-radius: 50%;
+}
+
+/* shown-state dimming: inactive buttons sit back, focused/active pop */
+.fk-ui .fk-ui-inlineMenu.fk-show .fk-button,
+.fk-ui .fk-bubble.fk-bubble--visible .fk-button {
+    opacity: 0.75;
+}
+
+.fk-ui .fk-ui-inlineMenu.fk-show .fk-button--focused,
+.fk-ui .fk-ui-inlineMenu.fk-show .fk-button--active,
+.fk-ui .fk-bubble.fk-bubble--visible .fk-button--focused,
+.fk-ui .fk-bubble.fk-bubble--visible .fk-button--active {
+    opacity: 1;
+}
+
+/* ---------- button states (night) ---------- */
+
+.night .fk-ui .fk-ui-inlineMenu.fk-show .fk-button,
+.night .fk-ui .fk-bubble.fk-bubble--visible .fk-button {
+    opacity: 0.5;
+}
+
+.night .fk-ui .fk-ui-inlineMenu.fk-show .fk-button--focused,
+.night .fk-ui .fk-ui-inlineMenu .fk-button:hover,
+.night .fk-ui .fk-bubble.fk-bubble--visible .fk-button--focused,
+.night .fk-ui .fk-bubble .fk-button:hover {
+    color: #fff;
+    border: 1px solid #fff;
+    opacity: 1;
+}
+
+.night .fk-ui .fk-ui-inlineMenu .fk-button--inlineMenu:hover,
+.night .fk-ui .fk-bubble .fk-button:hover {
+    background: rgba(255, 255, 255, 0.14);
+}
+
+/* ---------- bubble furniture (day) ---------- */
+
+.fk-bubble__pagination {
+    padding: 0 2px;
+    cursor: pointer;
+    font-size: 8px;
+    color: #000;
+}
+
+.fk-bubble__pagination:hover {
+    background: #ddd;
+}
+
+.fk-bubble__pagination--next {
+    border-left: 1px solid #ddd;
+    padding-left: 3px;
+    margin-left: 5px;
+}
+
+.fk-bubble__pagination--prev {
+    border-right: 1px solid #ddd;
+    padding-right: 3px;
+    margin-right: 5px;
+}
+
+html.fk-touch-device-with-native-bubble .fk-bubble__pagination {
+    padding: 0 10px;
+}
+
+.fk-bubble__action {
+    text-rendering: geometricPrecision;
+    background-color: transparent;
+    font-size: 12px;
+    margin: 5px 2px;
+    padding: 0 10px;
+    cursor: pointer;
+    outline: none;
+    border: none;
+    color: #000;
+}
+
+.fk-bubble__action--icon {
+    position: relative;
+    font-size: 18px;
+    top: 1px;
+}
+
+.fk-bubble__action:last-child {
+    margin-right: 5px;
+}
+
+.fk-bubble__link-prompt {
+    display: flex;
+}
+
+.fk-bubble__link-prompt__input {
+    font-family: Menlo, 'Roboto Mono', serif;
+    text-rendering: geometricPrecision;
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    box-sizing: border-box;
+    min-width: 220px;
+    margin: 4px 2px;
+    padding: 4px;
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.54);
+    outline: none;
+    border: none;
+    height: 36px;
+}
+
+.fk-bubble__link-prompt__input::-ms-clear {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+.fk-bubble__link-prompt__input:focus {
+    border: none;
+    outline: none;
+}
+
+html.fk-touch-device-with-native-bubble .fk-bubble__link-prompt__input {
+    font-size: 16px;
+}
+
+a.fk-selected-link {
+    background: Highlight;
+    color: HighlightText;
+}
+
+/* ---------- bubble furniture (night) ---------- */
+
+.night .fk-bubble__pagination {
+    color: #dadada;
+}
+
+.night .fk-bubble__pagination:hover {
+    background: rgba(255, 255, 255, 0.14);
+}
+
+.night .fk-bubble__pagination--next {
+    border-left-color: rgba(255, 255, 255, 0.1);
+}
+
+.night .fk-bubble__pagination--prev {
+    border-right-color: rgba(255, 255, 255, 0.1);
+}
+
+.night .fk-bubble__link-prompt__input {
+    color: #dadada;
+}
+
+.night .fk-bubble__action {
+    color: #dadada;
+}

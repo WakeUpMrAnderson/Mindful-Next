@@ -1,0 +1,9 @@
+exports = module.exports = require("./../../../node_modules/css-loader/lib/css-base.js")();
+exports.push([module.id, ".notification {\n  -webkit-transition: all .5s ease-in-out;\n  transition: all .5s ease-in-out;\n  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);\n  -webkit-transform: translateY(-100%);\n          transform: translateY(-100%);\n  opacity: 0;\n  background: #f6f6f6;\n  line-height: 1.5em;\n  padding: 18px;\n  max-width: 688px;\n  margin-left: -24px;\n  margin-right: -24px;\n  border-radius: 2px;\n  font-size: 12px;\n  position: fixed;\n  width: 80%;\n  top: 0;\n}\n\n.notification__content {\n  display: inline;\n}\n\n.notification.show {\n  -webkit-transform: translateY(0%);\n          transform: translateY(0%);\n  opacity: 1;\n}\n\n.notification__button {\n  border: 1px solid #000;\n  border-radius: 2px;\n  font-weight: 700;\n  background: none;\n  padding: 5px 8px;\n  cursor: pointer;\n  float: right;\n}\n\n.notification__button:active,\n.notification__button.active {\n  background: #000 !important;\n  color: #fff;\n}\n", ""]);
+
+
+//////////////////
+// WEBPACK FOOTER
+// ./~/css-loader!./~/postcss-loader!./~/sass-loader?outputStyle=expanded!./src/plugins/notifications/notification.scss
+// module id = 390
+// module chunks = 0

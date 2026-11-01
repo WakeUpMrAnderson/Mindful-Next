@@ -1,0 +1,15 @@
+{
+  "name": "mindful-next",
+  "version": "0.9.8210",
+  "private": true,
+  "description": "Development fork of Mindful (Beta) — readable rebuild, new extension identity (Mindful (Next)).",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "watch": "node scripts/build.js --watch",
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "playwright": "^1.62.1"
+  }
+}
