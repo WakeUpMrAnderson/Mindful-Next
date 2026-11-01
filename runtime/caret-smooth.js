@@ -112,6 +112,16 @@
       var editorFocused = !!(active &&
         (active === article || article.contains(active)));
 
+      // Hide ("mindful") mode blanks the editor with opacity: 0 — the
+      // overlay must never paint over it. Focusing the hidden article
+      // (e.g. a vault unlock, which deliberately restores editor focus
+      // in the unlocking tab) would otherwise park a visible caret at
+      // the article start, over the Mindful logo screen.
+      if (document.documentElement.classList.contains('hide')) {
+        hide();
+        return;
+      }
+
       var sel = window.getSelection();
       if (!sel || sel.rangeCount === 0 || !sel.isCollapsed || !editorFocused) {
         hide();
@@ -178,6 +188,13 @@
     // rAF-coalesced through scheduleUpdate, so the cost stays flat.
     if (typeof ResizeObserver === 'function') {
       new ResizeObserver(scheduleUpdate).observe(article);
+    }
+
+    // The hide ("mindful") toggle flips html's class without touching
+    // focus or selection — watch it so the overlay hides/shows the same
+    // frame the editor visibility changes, not on the next interaction.
+    if (typeof MutationObserver === 'function') {
+      new MutationObserver(scheduleUpdate).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
     }
 
     update();
