@@ -22,6 +22,39 @@ all rights to the original design and code remain with Adrian Zumbrunnen
 and Hinderling Volkart. The changes here (MV3 migration, CSP-safe rebuild,
 bug fixes) exist to keep a beloved tool alive on modern Chrome.
 
+## New in this rebuild
+
+The original's editor — the flow menu, checkboxes, day/night and hide
+modes — is preserved as it was. On top of it, this rebuild adds:
+
+- **Encrypted note vault** — notes never persist in plaintext anywhere:
+  AES-256-GCM via Web Crypto with non-extractable keys, PBKDF2 (310k
+  iterations), encrypted `chrome.storage.sync` replication, last-7 daily
+  encrypted snapshots, sync-rollback protection, auto-lock after 15 idle
+  minutes, and cross-tab lock/unlock broadcast. Optional **strict unlock**
+  demands the passphrase again on every new tab. Full model in
+  [SECURITY.md](SECURITY.md).
+- **Settings panel** (gear icon) — one drawer for the editor column width
+  (30–90 %), auto-lock minutes, strict unlock, sync interval, notes
+  export/import and shortcut remapping. Closes on Escape or click-outside.
+- **Remappable shortcuts** — every editor command's binding can be remapped
+  from the settings panel; Chrome-reserved combos and duplicate bindings
+  are rejected; overrides persist across sessions.
+- **Notes export / import** — one-click Markdown/HTML export; sanitized
+  `.md` / `.html` import (active elements and inline event handlers
+  stripped before they touch the notes).
+- **Smooth caret** — a Word-style smooth blinking caret overlay replaces
+  the native text caret (`runtime/caret-smooth.js`).
+- **First-party icon set** — the 2016 icon font is retired (its CDN
+  binaries have been dead since 2016); the UI now draws inline
+  feather-style SVGs that theme with the text color, day and night.
+- **Runs on modern Chrome** — Manifest V3, `script-src 'self'` CSP with
+  zero `eval`/`new Function` anywhere; the original Vue 1.x bubble
+  component was rewritten as a plain-DOM module.
+- **Tested & toolable** — an esbuild build and a 75-check Playwright suite
+  (editor smoke, caret overlay, settings panel, vault encryption sweep,
+  shortcuts), plus real-extension debug probes under `scripts/debug/`.
+
 ## Layout
 
 ```
@@ -68,7 +101,7 @@ root has no bundle; a red on-page badge will tell you if you got it wrong).
 The 2016 original was a webpack-1 minified bundle (`legacy/m.legacy.js`)
 whose source map carried all 387 original files. This repo extracted them
 (`scripts/extract-sources.py`), made the bundle MV3/CSP-compliant (no
-`new Function`/eval anywhere — Vue's expression compiler was replaced by a
-small interpreter in `src/vendor/shims/csp-expression.js`), fixed a series
+`new Function`/eval anywhere — the original's Vue 1.x bubble component was
+rewritten as a plain-DOM module), fixed a series
 of latent bugs, and put the whole thing under test. See `docs/MIGRATION_NOTES.md`
 and the git log for the full story.

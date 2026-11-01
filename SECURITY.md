@@ -50,9 +50,9 @@ test (`tests/vault.spec.js`) types a marker string and asserts it appears in
   tabs (they adopt the re-mirrored session key, GCM-verified against the
   stored blob before use). The key is session-available to every new tab
   regardless, so this makes the model coherent — **one authentication per
-  browser session** — without adding exposure. A stricter posture (demand a
-  passphrase on every new tab, no session mirror) is a planned options-page
-  choice.
+  browser session** — without adding exposure. Optional **strict unlock**
+  (settings panel) drops the session mirror entirely: every new tab then
+  demands the passphrase again.
 - Remote unlocks never steal focus: only the tab where the passphrase was
   typed takes the caret.
 - The vault **auto-locks after 15 minutes of idle** (keydown/mousemove
