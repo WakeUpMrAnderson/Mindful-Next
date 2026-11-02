@@ -17,8 +17,17 @@ new tab. It is the continuation of Mindful (Beta) — the 2016 original by
 Adrian Zumbrunnen — rebuilt from its source map into a fully readable,
 CSP-compliant codebase. Everything is readable; `dist/` is what Chrome loads.
 
-<!-- Screenshots: added at the end of the settings-polish branch so they
-     match the final state. -->
+<p align="center">
+  <img src="docs/screenshots/editor-day.png" width="49%" alt="Editor — day">
+  <img src="docs/screenshots/editor-night.png" width="49%" alt="Editor — night">
+</p>
+<p align="center">
+  <img src="docs/screenshots/settings-day.png" width="49%" alt="Settings — day">
+  <img src="docs/screenshots/settings-night.png" width="49%" alt="Settings — night">
+</p>
+<p align="center">
+  <img src="docs/screenshots/mindful-mode.png" width="49%" alt="Mindful mode — the editor steps aside, only the logo remains">
+</p>
 
 ## Features
 
