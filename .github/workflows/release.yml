@@ -1,0 +1,36 @@
+name: Release
+
+# A push of a tag `v1.2.3` builds dist/, pins the manifest version to the
+# tag, packages the load-unpacked folder into a zip and publishes it as a
+# GitHub release with generated notes. Tag digits-only versions
+# (v1.0.1) — Chrome manifest versions allow digits and dots only.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Pin manifest version to the tag
+        run: >-
+          node -e "const fs=require('fs');const tag=process.env.GITHUB_REF_NAME;
+          const m=JSON.parse(fs.readFileSync('dist/manifest.json','utf8'));
+          m.version=tag.replace(/^v/,'');
+          fs.writeFileSync('dist/manifest.json',JSON.stringify(m,null,2));"
+      - name: Package dist/
+        run: zip -r "mindful-next-${GITHUB_REF_NAME}.zip" dist
+      - name: Create the GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release create "$GITHUB_REF_NAME" --generate-notes "mindful-next-${GITHUB_REF_NAME}.zip"

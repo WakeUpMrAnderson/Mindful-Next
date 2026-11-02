@@ -11,12 +11,16 @@
 module.exports = {
     testDir: 'tests',
     timeout: 30000,
+    // the suite has load-sensitive tail tests; CI runners are noisier
+    retries: process.env.CI ? 2 : 1,
     use: {
         baseURL: 'http://127.0.0.1:8931',
         headless: true,
     },
     webServer: {
-        command: 'python -m http.server 8931',
+        // node static server (scripts/serve.js) — CI runners have no
+        // `python` alias, and this removes the python dependency entirely
+        command: 'node scripts/serve.js',
         port: 8931,
         reuseExistingServer: true,
         cwd: __dirname,
