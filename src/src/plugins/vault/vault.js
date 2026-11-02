@@ -273,6 +273,7 @@ export class Vault {
         if (localStorage.getItem('strictunlock') !== '1') {
             await sessionStore().set({ 'vault.key': b64.encode(new Uint8Array(rawBits)) });
         }
+        new Uint8Array(rawBits).fill(0);   // buffer has no further use — shrink the exposure window
         this.state = VaultState.UNLOCKED;
         await this.snapshot(initialContent || '');   // day-one snapshot
     }
@@ -300,6 +301,7 @@ export class Vault {
         if (localStorage.getItem('strictunlock') !== '1') {
             await sessionStore().set({ 'vault.key': b64.encode(new Uint8Array(rawBits)) });
         }
+        new Uint8Array(rawBits).fill(0);   // buffer has no further use — shrink the exposure window
         this.state = VaultState.UNLOCKED;
     }
 
