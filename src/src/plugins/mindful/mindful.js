@@ -241,7 +241,12 @@ Mindful.prototype.ensureSettingsStyles = function(){
         '.mfk-settings-preview i { display: block; height: 10px;',
         '    border-radius: 5px; background: rgba(0, 0, 0, .4);',
         '    transition: width .2s ease-in-out; }',
-        '.mfk-settings-saved { font-size: 11px; color: rgba(0, 0, 0, .45);',
+        '/* the saved flash must never join the flex flow: it is appended to',
+        '   the header on first save and would push the close button off the',
+        '   right edge PERMANENTLY (opacity 0 still occupies layout space) */',
+        '.mfk-settings-saved { position: absolute; right: 48px; top: 50%;',
+        '    transform: translateY(-50%); font-size: 11px;',
+        '    color: rgba(0, 0, 0, .45); pointer-events: none;',
         '    opacity: 0; transition: opacity .3s ease-in-out; }',
         '.mfk-settings-saved-show { opacity: 1; }',
         '.mfk-settings-shortcuts { display: flex; flex-direction: column; gap: 8px; }',
@@ -528,7 +533,7 @@ Mindful.prototype.buildSettingsPanel = function(){
         wrap.appendChild(input);
         var btns = document.createElement('span');
         btns.className = 'mfk-stepper-btns';
-        [['down', CHEVRON_DOWN, -1], ['up', CHEVRON_UP, 1]].forEach(function (def) {
+        [['up', CHEVRON_UP, 1], ['down', CHEVRON_DOWN, -1]].forEach(function (def) {
             var b = document.createElement('button');
             b.type = 'button';
             b.className = 'mfk-stepper-btn';

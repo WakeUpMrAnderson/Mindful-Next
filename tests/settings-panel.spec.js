@@ -305,11 +305,11 @@ test.describe('settings side panel', () => {
         const out = await page.evaluate(() => {
             const num = document.querySelector('.mfk-settings-autolock');
             const btns = num.closest('.mfk-stepper').querySelectorAll('.mfk-stepper-btn');
-            btns[1].click();
-            btns[1].click();
+            btns[0].click();   // up is on top now
+            btns[0].click();
             const afterUp = { shown: num.value, stored: localStorage.getItem('autolock') };
             num.value = '2';
-            btns[0].click();
+            btns[1].click();   // down
             return { afterUp: afterUp, clamped: num.value, stored: localStorage.getItem('autolock') };
         });
         expect(out.afterUp.stored).toBe('17');
