@@ -463,6 +463,12 @@ Mindful.prototype.buildSettingsPanel = function(){
 Mindful.prototype.setHideMode = function(){
     document.documentElement.classList.remove('hide', 'show');
     document.documentElement.classList.add(localStorage.getItem('hidemode') || 'show');
+    // the settings panel belongs to the writing UI — entering hide mode
+    // with it open would leave it floating over the Mindful logo screen
+    if (document.documentElement.classList.contains('hide') &&
+        this.settingsPanel && this.settingsPanel.classList.contains('mfk-settings-open')) {
+        this.toggleSettingsPanel();
+    }
 };
 Mindful.prototype.bindNightDayModeListeners = function(){
     // both buttons of a pair toggle to the OTHER mode — the handler reads

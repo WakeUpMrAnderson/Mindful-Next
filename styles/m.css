@@ -51,7 +51,12 @@ body .fk-empty {
     transform: scale(.9);
     font-size: 12px;
     bottom: 20px;
-    right: 52px;
+    /* 64px, not the 2016 corner slot: the settings gear now occupies
+       right 54-71 on this rail, and the credit's scale(.9) pulls its
+       visible right edge ~14px inward — 52px put the @azumbrunnen_ link
+       ~5px INSIDE the gear's hit box (clicking the gear's top-left
+       corner followed the link). 64px keeps a ~7px gap. */
+    right: 64px;
     opacity: 0;
     left: auto
 }
@@ -77,6 +82,29 @@ body .fk-empty {
 
 .author:not(.focus) .mindful-toggle--author a {
     pointer-events: auto
+}
+
+/* Mindful (hide) mode keeps only the writing surface's frame: the Mindful
+   logo, the eye toggle and the theme toggle. Everything else that belongs
+   to the writing UI disappears — the chrome layer and caret overlay are
+   suppressed separately (.hide .fk-ui, caret-smooth.js); the rail's
+   about/settings buttons have no role here, the page has nothing left to
+   scroll, and a credit toggled on before entering the mode would only
+   collide with the (now hidden) gear slot. */
+.hide {
+    overflow: hidden
+}
+
+.hide .fk-icon-info,
+.hide .fk-icon-settings {
+    opacity: 0;
+    pointer-events: none
+}
+
+.hide.author .mindful-toggle--author,
+.hide.author .mindful-toggle--author a {
+    opacity: 0;
+    pointer-events: none
 }
 
 .mindful-toggle a {
