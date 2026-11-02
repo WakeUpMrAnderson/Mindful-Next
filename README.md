@@ -1,9 +1,92 @@
-# Mindful (Next)
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/mindful-dark.png">
+    <img src="assets/mindful-light.png" alt="Mindful" width="200">
+  </picture>
+</p>
+
+<h1 align="center">Mindful (Next)</h1>
+
+<p align="center">A minimal, private writing space in every new tab.<br>
+An encrypted notepad for Chrome — thoughts in, world out.</p>
+
+---
 
 A new-tab Chrome extension (MV3): a minimal, private writing space in every
 new tab. It is the continuation of Mindful (Beta) — the 2016 original by
 Adrian Zumbrunnen — rebuilt from its source map into a fully readable,
 CSP-compliant codebase. Everything is readable; `dist/` is what Chrome loads.
+
+<!-- Screenshots: added at the end of the settings-polish branch so they
+     match the final state. -->
+
+## Features
+
+- **Encrypted notes** — AES-256-GCM via Web Crypto with non-extractable
+  keys, PBKDF2 (310k iterations); nothing ever persists in plaintext.
+  Encrypted sync replication, daily snapshots, rollback protection,
+  auto-lock, cross-tab lock broadcast. Optional strict unlock demands the
+  passphrase on every new tab. Full model in [SECURITY.md](SECURITY.md).
+- **Settings drawer** (gear icon) — editor column width, auto-lock
+  minutes, sync interval, notes export/import, shortcut remapping.
+- **Remappable shortcuts** — every editor command's binding can be
+  remapped; Chrome-reserved combos and duplicates are rejected; overrides
+  persist.
+- **Notes export / import** — one-click Markdown/HTML export; sanitized
+  `.md` / `.html` import.
+- **Smooth caret** — a Word-style blinking caret overlay.
+- **Day / night / mindful mode** — hide the editor, keep the logo.
+- **Runs on modern Chrome** — Manifest V3, `script-src 'self'` CSP with
+  zero `eval`/`new Function`; no frameworks.
+- **Tested** — a 75-check Playwright suite (editor smoke, caret, settings,
+  vault encryption sweep, shortcuts).
+
+## Install
+
+`chrome://extensions` → Developer mode → **Load unpacked** → select
+the `dist` folder inside your clone — **the `dist` folder, not the repo root** (the
+root has no bundle; a red on-page badge will tell you if you got it wrong).
+
+## Development
+
+```bash
+npm install          # esbuild + playwright (devDependencies only)
+npm run build        # -> dist/  (npm run watch rebuilds on change)
+npm test             # 75 checks: editor smoke + caret, settings, vault,
+                     # shortcuts suites
+```
+
+The smoke suite runs its checklist against `dist/index.html` (rebuilt) and,
+when the private `legacy/` fixture is present next to the repo, also against
+`legacy/index-legacy.html` (original 2016 bundle) for A/B parity — that leg
+is skipped when the fixture is absent. `scripts/debug/*.js` are
+real-extension probes (load dist with Playwright, click things, report
+state).
+
+### Repository layout
+
+```
+index.html, manifest.json   canonical page + manifest (copied into dist/)
+assets/                     icons, favicons, fonts, logo
+styles/                     m.css, fonts.css, caret.css
+runtime/                    mv3-fixes.js, caret-smooth.js (hand-maintained scripts)
+src/                        the recovered source tree (app + vendor + shims)
+  src/mindful/index.js      bundle entry point
+  src/MANIFEST.json         provenance map: webpack:/// source -> file
+legacy/                     optional private fixture (2016 bundle + map + A/B
+                            harness) — NOT part of this repo; the suite skips
+                            it when absent. extract-sources.py needs its map.
+scripts/                    build.js, extract-sources.py, debug/ probes
+tests/                      Playwright suites: editor smoke + caret, settings,
+                            vault, shortcuts
+dist/                       generated output — Load unpacked THIS folder
+```
+
+## Security
+
+Notes are never persisted in plaintext — anywhere. The full security
+model (ciphers, key lifetime, threat coverage, honest limitations) lives
+in [SECURITY.md](SECURITY.md).
 
 ## Credits & provenance
 
@@ -41,80 +124,6 @@ bug fixes) exist to keep a beloved tool alive on modern Chrome.
 - **Third-party components** — recovered from the bundle and re-attributed
   in [NOTICE](NOTICE): lodash (MIT), ms (MIT), lz-string (WTFPL v2),
   Roboto Mono (Apache 2.0).
-
-## New in this rebuild
-
-The original's editor — the flow menu, checkboxes, day/night and hide
-modes — is preserved as it was. On top of it, this rebuild adds:
-
-- **Encrypted note vault** — notes never persist in plaintext anywhere:
-  AES-256-GCM via Web Crypto with non-extractable keys, PBKDF2 (310k
-  iterations), encrypted `chrome.storage.sync` replication, last-7 daily
-  encrypted snapshots, sync-rollback protection, auto-lock after 15 idle
-  minutes, and cross-tab lock/unlock broadcast. Optional **strict unlock**
-  demands the passphrase again on every new tab. Full model in
-  [SECURITY.md](SECURITY.md).
-- **Settings panel** (gear icon) — one drawer for the editor column width
-  (30–90 %), auto-lock minutes, strict unlock, sync interval, notes
-  export/import and shortcut remapping. Closes on Escape or click-outside.
-- **Remappable shortcuts** — every editor command's binding can be remapped
-  from the settings panel; Chrome-reserved combos and duplicate bindings
-  are rejected; overrides persist across sessions.
-- **Notes export / import** — one-click Markdown/HTML export; sanitized
-  `.md` / `.html` import (active elements and inline event handlers
-  stripped before they touch the notes).
-- **Smooth caret** — a Word-style smooth blinking caret overlay replaces
-  the native text caret (`runtime/caret-smooth.js`).
-- **First-party icon set** — the 2016 icon font is retired (its CDN
-  binaries have been dead since 2016); the UI now draws inline
-  feather-style SVGs that theme with the text color, day and night.
-- **Runs on modern Chrome** — Manifest V3, `script-src 'self'` CSP with
-  zero `eval`/`new Function` anywhere; the original Vue 1.x bubble
-  component was rewritten as a plain-DOM module.
-- **Tested & toolable** — an esbuild build and a 75-check Playwright suite
-  (editor smoke, caret overlay, settings panel, vault encryption sweep,
-  shortcuts), plus real-extension debug probes under `scripts/debug/`.
-
-## Layout
-
-```
-index.html, manifest.json   canonical page + manifest (copied into dist/)
-assets/                     icons, favicons, fonts
-styles/                     m.css, fonts.css, caret.css
-runtime/                    mv3-fixes.js, caret-smooth.js (hand-maintained scripts)
-src/                        the recovered source tree (app + vendor + shims)
-  src/mindful/index.js      bundle entry point
-  src/MANIFEST.json         provenance map: webpack:/// source -> file
-legacy/                     optional private fixture (2016 bundle + map + A/B
-                            harness) — NOT part of this repo; the suite skips
-                            it when absent. extract-sources.py needs its map.
-scripts/                    build.js, extract-sources.py, debug/ probes
-tests/                      Playwright suites: editor smoke + caret, settings,
-                            vault, shortcuts
-dist/                       generated output — Load unpacked THIS folder
-```
-
-## Build & test
-
-```bash
-npm install          # esbuild + playwright (devDependencies only)
-npm run build        # -> dist/  (npm run watch rebuilds on change)
-npm test             # 75 checks: editor smoke + caret, settings, vault,
-                     # shortcuts suites
-```
-
-The smoke suite runs its checklist against `dist/index.html` (rebuilt) and,
-when the private `legacy/` fixture is present next to the repo, also against
-`legacy/index-legacy.html` (original 2016 bundle) for A/B parity — that leg
-is skipped when the fixture is absent. `scripts/debug/*.js` are
-real-extension probes (load dist with Playwright, click things, report
-state).
-
-## Load in Chrome
-
-`chrome://extensions` → Developer mode → **Load unpacked** → select
-the `dist` folder inside your clone — **the `dist` folder, not the repo root** (the
-root has no bundle; a red on-page badge will tell you if you got it wrong).
 
 ## History in one paragraph
 
