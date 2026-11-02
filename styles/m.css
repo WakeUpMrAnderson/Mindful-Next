@@ -26,6 +26,17 @@ body .fk-empty {
     opacity: 0
 }
 
+/* Hide ("mindful") mode blanks the whole writing UI, not just the
+   article. Every piece of editor chrome — block dots, flow menu,
+   selection bubble — hangs off the single .fk-ui root (core/ui/ui.js),
+   is positioned from the article's layout and renders on editor
+   focus/active state, none of which stops in hide mode: a vault unlock
+   focuses the hidden editor and its block dots would float over the
+   Mindful logo screen. Kill the chrome layer at its root. */
+.hide .fk-ui {
+    display: none
+}
+
 .mindful-toggle {
     transition: all .3s ease-in-out;
     color: rgba(0, 0, 0, .54);
