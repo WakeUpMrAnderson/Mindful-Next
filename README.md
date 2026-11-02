@@ -44,7 +44,9 @@ CSP-compliant codebase. Everything is readable; `dist/` is what Chrome loads.
   persist.
 - **Notes export / import** — one-click Markdown/HTML export; sanitized
   `.md` / `.html` import.
-- **Smooth caret** — a Word-style blinking caret overlay.
+- **Smooth caret** — a Word-style caret with an eased glide, soft
+  accent glow, gentle breathe and a ripple on every keystroke (honors
+  reduced motion).
 - **Day / night / mindful mode** — hide the editor, keep the logo.
 - **Runs on modern Chrome** — Manifest V3, `script-src 'self'` CSP with
   zero `eval`/`new Function`; no frameworks.

@@ -27,7 +27,7 @@ constraint: **notes are never persisted in plaintext — anywhere.**
 
 | Area | Keys | Purpose |
 |---|---|---|
-| `chrome.storage.sync` | `vault.meta`, `vault.data` | encrypted replica across devices (throttled) |
+| `chrome.storage.sync` | `vault.meta`, `vault.data` | encrypted replica across devices (throttled); the settings drawer can switch replication off entirely, which also clears the synced copy from the account |
 | `chrome.storage.local` | `vault.meta`, `vault.data`, `vault.snapshots`, `vault.watermark` | fast local mirror + last-7 daily encrypted snapshots + rollback watermark |
 | `chrome.storage.session` | `vault.key`, `vault.lockGen` | the derived key bits, **in-memory only**, wiped when the browser closes; lock generation counter broadcast to every tab |
 | `localStorage` | `vault.mirror`, mode flags (`daymode`, `hidemode`, …) | `vault.mirror` is the **ciphertext** of the last completed save (ts rides outside the envelope for newest-wins); synchronous floor against tab-close races. Mode flags never contain note content. |
