@@ -156,9 +156,14 @@
     }
 
     // Word-style typing behavior: keep the caret solid while the user
-    // is typing, resume smooth blinking after a short pause.
+    // is typing, resume smooth blinking after a short pause. The class
+    // is removed and re-added with a forced reflow on EVERY keystroke —
+    // that retriggers the one-shot ::after keystroke ripple (see
+    // caret.css) alongside the solid phase.
     var typingTimer = null;
     function markTyping() {
+      caret.classList.remove('mfk-caret--typing');
+      void caret.offsetWidth;
       caret.classList.add('mfk-caret--typing');
       if (typingTimer) clearTimeout(typingTimer);
       typingTimer = setTimeout(function () {

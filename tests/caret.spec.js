@@ -173,7 +173,7 @@ test.describe('caret overlay', () => {
             const cs = getComputedStyle(document.querySelector('.mfk-caret'));
             return { duration: cs.transitionDuration, prop: cs.transitionProperty };
         });
-        expect(transition.duration).toContain('0.08s');
+        expect(transition.duration).toContain('0.11s');
         expect(transition.prop).toContain('transform');
     });
 
