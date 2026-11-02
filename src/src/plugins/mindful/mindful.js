@@ -149,11 +149,19 @@ Mindful.prototype.ensureSettingsStyles = function(){
         '    box-shadow: -10px 0 36px rgba(0, 0, 0, .28);',
         '    transform: translateX(110%); opacity: 0;',
         '    transition: transform .3s ease, opacity .3s ease;',
-        '    overflow-y: auto; }',
+        '    overflow-y: auto; overscroll-behavior: contain;',
+        '    /* native scrollbar, themed by the browser itself via the',
+        '       standard properties — thumb + visible track, no hacks */',
+        '    scrollbar-width: thin;',
+        '    scrollbar-color: rgba(0, 0, 0, .32) rgba(0, 0, 0, .05); }',
         '.mfk-settings-panel.mfk-settings-open { transform: none; opacity: 1; }',
-        '.mfk-settings-card { padding: 26px 26px 32px; }',
-        '.mfk-settings-head { display: flex; align-items: center;',
-        '    justify-content: space-between; margin-bottom: 22px; }',
+        '.mfk-settings-card { padding: 18px 26px 32px; }',
+        '.mfk-settings-head { position: sticky; top: 0; z-index: 5;',
+        '    display: flex; align-items: center; justify-content: space-between;',
+        '    padding: 16px 26px 12px; margin: 0 0 6px;',
+        '    background: #f6f6f6;',
+        '    /* the rule separating the header from the scrolling body */',
+        '    border-bottom: 1px solid rgba(0, 0, 0, .12); }',
         '.mfk-settings-head h1 { font-size: 15px; font-weight: 700; margin: 0;',
         '    letter-spacing: .02em; }',
         '.mfk-settings-close { font-size: 18px; line-height: 1; cursor: pointer;',
@@ -166,15 +174,26 @@ Mindful.prototype.ensureSettingsStyles = function(){
         /* color: inherit — m.css's global h2 { color: #727272 } (editor
            headings) leaks in here and dims the section titles below the
            panel text; the headings must read like the `Settings` h1 */
-        '.mfk-settings-sub { font-size: 11px; color: rgba(0, 0, 0, .45);',
+        '.mfk-settings-sub { font-size: 11px; color: rgba(0, 0, 0, .62);',
         '    margin: 0 0 14px; }',
         '.mfk-settings-row { display: flex; align-items: center; gap: 14px; }',
         '.mfk-settings-row input[type="range"] { flex: 1; accent-color: #111; }',
-        '.mfk-settings-row input[type="number"] { width: 60px; padding: 6px 8px;',
+        '.mfk-settings-row input[type="number"] { width: 64px; padding: 8px 10px;',
         '    box-sizing: border-box; font: inherit; font-size: 12px;',
         '    text-align: center; border: 1px solid rgba(0, 0, 0, .15);',
-        '    border-radius: 4px; background: transparent; color: inherit; }',
-        '.mfk-settings-unit { font-size: 11px; color: rgba(0, 0, 0, .45); }',
+        '    border-radius: 4px; background: transparent; color: inherit;',
+        '    appearance: textfield;',
+        '    transition: border-color .2s ease-in-out; }',
+        '/* the native spin buttons read as clutter next to the monochrome',
+        '   rail controls — typing and the paired slider cover the input */',
+        '.mfk-settings-row input[type="number"]::-webkit-outer-spin-button,',
+        '.mfk-settings-row input[type="number"]::-webkit-inner-spin-button {',
+        '    -webkit-appearance: none; margin: 0; }',
+        '.mfk-settings-row input[type="number"]:hover {',
+        '    border-color: rgba(0, 0, 0, .4); }',
+        '.mfk-settings-row input[type="number"]:focus {',
+        '    outline: none; border-color: #111; }',
+        '.mfk-settings-unit { font-size: 11px; color: rgba(0, 0, 0, .62); }',
         '.mfk-settings-label { font-size: 11px; flex: 1; }',
         '.mfk-settings-row-tight { margin-top: 10px; }',
         '.mfk-settings-row input[type="checkbox"] { accent-color: #111; }',
@@ -222,14 +241,21 @@ Mindful.prototype.ensureSettingsStyles = function(){
         '    border-color: #dadada; color: rgba(255, 255, 255, .45); }',
         '.night .mfk-settings-warn { color: #e89; }',
         '/* night theme */',
-        '.night .mfk-settings-panel { background: #1a1d21; color: #dadada; }',
+        '.night .mfk-settings-panel { background: #1a1d21; color: #dadada;',
+        '    scrollbar-color: rgba(255, 255, 255, .32) rgba(255, 255, 255, .07); }',
+        '.night .mfk-settings-head { background: #1a1d21;',
+        '    border-bottom-color: rgba(255, 255, 255, .14); }',
         '.night .mfk-settings-close { color: rgba(255, 255, 255, .45); }',
         '.night .mfk-settings-close:hover { color: #dadada; }',
-        '.night .mfk-settings-sub { color: rgba(255, 255, 255, .45); }',
+        '.night .mfk-settings-sub { color: rgba(255, 255, 255, .62); }',
         '.night .mfk-settings-row input[type="range"] { accent-color: #dadada; }',
         '.night .mfk-settings-row input[type="number"] {',
         '    border-color: rgba(255, 255, 255, .2); }',
-        '.night .mfk-settings-unit { color: rgba(255, 255, 255, .45); }',
+        '.night .mfk-settings-row input[type="number"]:hover {',
+        '    border-color: rgba(255, 255, 255, .5); }',
+        '.night .mfk-settings-row input[type="number"]:focus {',
+        '    border-color: #dadada; }',
+        '.night .mfk-settings-unit { color: rgba(255, 255, 255, .62); }',
         '.night .mfk-settings-label { color: rgba(255, 255, 255, .54); }',
         '.night .mfk-settings-notes-actions button { color: rgba(255, 255, 255, .54); }',
         '.night .mfk-settings-notes-actions button:hover { color: #dadada; }',
@@ -250,11 +276,11 @@ Mindful.prototype.buildSettingsPanel = function(){
     panel.className = 'mfk-settings-panel';
     panel.setAttribute('aria-label', 'Settings');
     panel.innerHTML =
+        '<div class="mfk-settings-head">' +
+            '<h1>Settings</h1>' +
+            '<span class="mfk-settings-close" title="Close" role="button" aria-label="Close settings">×</span>' +
+        '</div>' +
         '<div class="mfk-settings-card">' +
-            '<div class="mfk-settings-head">' +
-                '<h1>Settings</h1>' +
-                '<span class="mfk-settings-close" title="Close" role="button" aria-label="Close settings">×</span>' +
-            '</div>' +
             '<section>' +
                 '<h2>Editor layout</h2>' +
                 '<p class="mfk-settings-sub">How wide the writing column is relative to the window.</p>' +
