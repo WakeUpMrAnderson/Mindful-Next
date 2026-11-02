@@ -158,10 +158,12 @@ Mindful.prototype.ensureSettingsStyles = function(){
         '.mfk-settings-card { padding: 18px 26px 32px; }',
         '.mfk-settings-head { position: sticky; top: 0; z-index: 5;',
         '    display: flex; align-items: center; justify-content: space-between;',
-        '    padding: 16px 26px 12px; margin: 0 0 6px;',
+        '    padding: 16px 26px 13px; margin: 0;',
         '    background: #f6f6f6;',
-        '    /* the rule separating the header from the scrolling body */',
-        '    border-bottom: 1px solid rgba(0, 0, 0, .12); }',
+        '    /* separator painted INSIDE the head: a border edge on a sticky',
+        '       (composited) layer can render as a dark seam band on some',
+        '       GPU/dpi combos — the inset shadow is part of the head paint */',
+        '    box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .12); }',
         '.mfk-settings-head h1 { font-size: 15px; font-weight: 700; margin: 0;',
         '    letter-spacing: .02em; }',
         '.mfk-settings-close { font-size: 18px; line-height: 1; cursor: pointer;',
@@ -193,6 +195,25 @@ Mindful.prototype.ensureSettingsStyles = function(){
         '    border-color: rgba(0, 0, 0, .4); }',
         '.mfk-settings-row input[type="number"]:focus {',
         '    outline: none; border-color: #111; }',
+        '/* stylish step buttons — the native spinners were removed for',
+        '   clutter; these replace them with the rail-control look */',
+        '.mfk-stepper { display: inline-flex; align-items: center; gap: 6px; }',
+        '.mfk-stepper-btns { display: inline-flex; flex-direction: column;',
+        '    gap: 3px; }',
+        '.mfk-stepper-btn { display: flex; align-items: center;',
+        '    justify-content: center; width: 20px; height: 15px; padding: 0;',
+        '    background: none; border: 1px solid rgba(0, 0, 0, .15);',
+        '    border-radius: 4px; color: rgba(0, 0, 0, .54); cursor: pointer;',
+        '    transition: color .2s ease-in-out, border-color .2s ease-in-out;',
+        '    transform: scale(1); }',
+        '.mfk-stepper-btn:hover { color: inherit;',
+        '    border-color: rgba(0, 0, 0, .4); }',
+        '.mfk-stepper-btn:active { transform: scale(.9); }',
+        '.mfk-stepper-btn svg { display: block; }',
+        '.night .mfk-stepper-btn { border-color: rgba(255, 255, 255, .2);',
+        '    color: rgba(255, 255, 255, .54); }',
+        '.night .mfk-stepper-btn:hover { color: #dadada;',
+        '    border-color: rgba(255, 255, 255, .5); }',
         '.mfk-settings-unit { font-size: 11px; color: rgba(0, 0, 0, .62); }',
         '.mfk-settings-label { font-size: 11px; flex: 1; }',
         '.mfk-settings-row-tight { margin-top: 10px; }',
@@ -244,7 +265,7 @@ Mindful.prototype.ensureSettingsStyles = function(){
         '.night .mfk-settings-panel { background: #1a1d21; color: #dadada;',
         '    scrollbar-color: rgba(255, 255, 255, .32) rgba(255, 255, 255, .07); }',
         '.night .mfk-settings-head { background: #1a1d21;',
-        '    border-bottom-color: rgba(255, 255, 255, .14); }',
+        '    box-shadow: inset 0 -1px 0 rgba(255, 255, 255, .14); }',
         '.night .mfk-settings-close { color: rgba(255, 255, 255, .45); }',
         '.night .mfk-settings-close:hover { color: #dadada; }',
         '.night .mfk-settings-sub { color: rgba(255, 255, 255, .62); }',
@@ -323,6 +344,16 @@ Mindful.prototype.buildSettingsPanel = function(){
                 '<h2>Shortcuts</h2>' +
                 '<p class="mfk-settings-sub">Remap the editor commands: click a binding, then press the new combination. Chrome-reserved keys and duplicates are rejected. Escape cancels.</p>' +
                 '<div class="mfk-settings-shortcuts"></div>' +
+            '</section>' +
+            '<section>' +
+                '<h2>Preferences</h2>' +
+                '<p class="mfk-settings-sub">Export every setting — theme, layout, security timings, shortcuts — as a JSON file, or import one back.</p>' +
+                '<div class="mfk-settings-notes-actions">' +
+                    '<button type="button" data-pref="export" title="Download the current settings as JSON">Export…</button>' +
+                    '<button type="button" data-pref="import" title="Load settings from a settings JSON file">Import…</button>' +
+                    '<input type="file" class="mfk-pref-file" accept=".json,application/json" hidden>' +
+                    '<span class="mfk-pref-status" aria-live="polite"></span>' +
+                '</div>' +
             '</section>' +
         '</div>';
 
@@ -484,6 +515,109 @@ Mindful.prototype.buildSettingsPanel = function(){
     }
     document.addEventListener('keydown', onCaptureKeydown, true);
     renderShortcutRows();
+
+    // stylish steppers — the native spin buttons are hidden; these carry
+    // the rail-control look and reuse the inputs' own change handlers for
+    // clamping + persistence
+    var CHEVRON_UP = '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="18 15 12 9 6 15"/></svg>';
+    var CHEVRON_DOWN = '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>';
+    panel.querySelectorAll('.mfk-settings-row input[type="number"]').forEach(function (input) {
+        var wrap = document.createElement('span');
+        wrap.className = 'mfk-stepper';
+        input.parentNode.insertBefore(wrap, input);
+        wrap.appendChild(input);
+        var btns = document.createElement('span');
+        btns.className = 'mfk-stepper-btns';
+        [['down', CHEVRON_DOWN, -1], ['up', CHEVRON_UP, 1]].forEach(function (def) {
+            var b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'mfk-stepper-btn';
+            b.setAttribute('aria-label', (input.getAttribute('aria-label') || 'value') + ' ' + (def[2] > 0 ? 'increase' : 'decrease'));
+            b.innerHTML = def[1];
+            b.addEventListener('click', function () {
+                var step = parseFloat(input.step) || 1;
+                var min = input.min === '' ? -Infinity : parseFloat(input.min);
+                var max = input.max === '' ? Infinity : parseFloat(input.max);
+                var v = parseFloat(input.value) || 0;
+                v = Math.min(max, Math.max(min, v + def[2] * step));
+                if (String(v) === input.value) return;
+                input.value = v;
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+            btns.appendChild(b);
+        });
+        wrap.appendChild(btns);
+    });
+
+    // F-prefs: export/import the settings this panel owns (localStorage
+    // keys, string values as stored; shortcutmap round-trips as its JSON
+    // string). Import is whitelist + range validated and re-applies
+    // everything live.
+    var prefStatus = panel.querySelector('.mfk-pref-status');
+    var prefFile = panel.querySelector('.mfk-pref-file');
+    var PREF_KEYS = ['editorwidth', 'autolock', 'syncinterval', 'strictunlock', 'daymode', 'hidemode', 'shortcutmap'];
+    function prefFlash(text) {
+        prefStatus.textContent = text;
+        clearTimeout(self._prefTimer);
+        self._prefTimer = setTimeout(function () { prefStatus.textContent = ''; }, 2500);
+    }
+    panel.querySelector('[data-pref="export"]').addEventListener('click', function () {
+        var out = { app: 'mindful-next', kind: 'settings', version: 1,
+            exported: new Date().toISOString(), settings: {} };
+        PREF_KEYS.forEach(function (k) {
+            var v = localStorage.getItem(k);
+            if (v !== null) out.settings[k] = v;
+        });
+        var blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' });
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'mindful-settings.json';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+        prefFlash('exported');
+    });
+    panel.querySelector('[data-pref="import"]').addEventListener('click', function () { prefFile.click(); });
+    prefFile.addEventListener('change', function () {
+        var file = prefFile.files && prefFile.files[0];
+        prefFile.value = '';
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function () {
+            try {
+                var data = JSON.parse(reader.result);
+                var s = data && data.kind === 'settings' && data.settings;
+                if (!s || typeof s !== 'object' || Array.isArray(s)) throw new Error('bad shape');
+                if (s.editorwidth !== undefined) { var w = parseInt(s.editorwidth, 10); if (w >= 30 && w <= 90) localStorage.setItem('editorwidth', String(w)); }
+                if (s.autolock !== undefined) { var al = parseInt(s.autolock, 10); if (al >= 1 && al <= 720) localStorage.setItem('autolock', String(al)); }
+                if (s.syncinterval !== undefined) { var si = parseInt(s.syncinterval, 10); if (si >= 10 && si <= 600) localStorage.setItem('syncinterval', String(si)); }
+                if (s.strictunlock === '0' || s.strictunlock === '1') {
+                    localStorage.setItem('strictunlock', s.strictunlock);
+                    // the vault watches this event and flips its session mirror
+                    window.dispatchEvent(new StorageEvent('storage', { key: 'strictunlock',
+                        newValue: s.strictunlock, oldValue: s.strictunlock === '1' ? '0' : '1' }));
+                }
+                if (s.daymode === 'day' || s.daymode === 'night') { localStorage.setItem('daymode', s.daymode); self.setNightMode(); }
+                if (s.hidemode === 'show' || s.hidemode === 'hide') { localStorage.setItem('hidemode', s.hidemode); self.setHideMode(); }
+                if (s.shortcutmap !== undefined) {
+                    var map = typeof s.shortcutmap === 'string' ? JSON.parse(s.shortcutmap) : s.shortcutmap;
+                    if (!map || typeof map !== 'object' || Array.isArray(map)) throw new Error('bad shortcutmap');
+                    localStorage.setItem('shortcutmap', JSON.stringify(map));
+                    renderShortcutRows();
+                }
+                self.applyEditorWidth();
+                render(readWidth());
+                autolockInput.value = parseInt(localStorage.getItem('autolock'), 10) || 15;
+                strictInput.checked = localStorage.getItem('strictunlock') === '1';
+                syncInput.value = parseInt(localStorage.getItem('syncinterval'), 10) || 10;
+                prefFlash('imported');
+            } catch (err) {
+                prefFlash('invalid file');
+            }
+        };
+        reader.readAsText(file);
+    });
 };
 
 Mindful.prototype.setHideMode = function(){

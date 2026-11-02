@@ -295,4 +295,76 @@ test.describe('settings side panel', () => {
         expect(night).toBe('rgb(26, 29, 33)');
         expect(pageErrors).toEqual([]);
     });
+
+    test('steppers step, clamp and persist through the inputs change handlers', async ({ page }) => {
+        await INIT(page);
+        await page.locator('.fk-icon-settings').dispatchEvent('click');
+        await page.waitForFunction(() =>
+            document.querySelector('.mfk-settings-panel').classList.contains('mfk-settings-open'),
+            null, { timeout: 3000 });
+        const out = await page.evaluate(() => {
+            const num = document.querySelector('.mfk-settings-autolock');
+            const btns = num.closest('.mfk-stepper').querySelectorAll('.mfk-stepper-btn');
+            btns[1].click();
+            btns[1].click();
+            const afterUp = { shown: num.value, stored: localStorage.getItem('autolock') };
+            num.value = '2';
+            btns[0].click();
+            return { afterUp: afterUp, clamped: num.value, stored: localStorage.getItem('autolock') };
+        });
+        expect(out.afterUp.stored).toBe('17');
+        expect(out.clamped).toBe('1');
+        expect(out.stored).toBe('1');
+        expect(pageErrors).toEqual([]);
+    });
+
+    test('preferences import applies whitelisted settings; junk is rejected', async ({ page }) => {
+        await INIT(page);
+        await page.locator('.fk-icon-settings').dispatchEvent('click');
+        await page.waitForFunction(() =>
+            document.querySelector('.mfk-settings-panel').classList.contains('mfk-settings-open'),
+            null, { timeout: 3000 });
+        const payload = {
+            app: 'mindful-next', kind: 'settings', version: 1,
+            settings: {
+                editorwidth: '55', autolock: '90', daymode: 'night',
+                bogus: 'injected',
+            },
+        };
+        const applied = await page.evaluate(payload => new Promise(res => {
+            const file = new File([JSON.stringify(payload)], 'settings.json', { type: 'application/json' });
+            const dt = new DataTransfer();
+            dt.items.add(file);
+            const input = document.querySelector('.mfk-pref-file');
+            input.files = dt.files;
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+            setTimeout(() => res({
+                width: localStorage.getItem('editorwidth'),
+                autolock: localStorage.getItem('autolock'),
+                bogus: localStorage.getItem('bogus'),
+                night: document.documentElement.classList.contains('night'),
+                numShown: document.querySelector('.mfk-settings-autolock').value,
+                status: document.querySelector('.mfk-pref-status').textContent,
+            }), 300);
+        }), payload);
+        expect(applied.width).toBe('55');
+        expect(applied.autolock).toBe('90');
+        expect(applied.bogus).toBe(null);
+        expect(applied.night).toBe(true);
+        expect(applied.numShown).toBe('90');
+        expect(applied.status).toBe('imported');
+
+        await page.evaluate(() => new Promise(res => {
+            const file = new File(['{"kind":"nope"}'], 'x.json', { type: 'application/json' });
+            const dt = new DataTransfer();
+            dt.items.add(file);
+            const input = document.querySelector('.mfk-pref-file');
+            input.files = dt.files;
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+            setTimeout(() => res(document.querySelector('.mfk-pref-status').textContent), 300);
+        }));
+        const status = await page.evaluate(() => document.querySelector('.mfk-pref-status').textContent);
+        expect(status).toBe('invalid file');
+        expect(pageErrors).toEqual([]);
+    });
 });
