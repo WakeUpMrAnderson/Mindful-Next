@@ -19,7 +19,14 @@ Mindful.prototype.init = function(editor){
      */
     this.nightMode = document.body.querySelector('.fk-icon-nightmode');
     this.info = document.body.querySelector('.fk-icon-info');
-    this.showMode = document.body.querySelector('.fk-icon-hide');
+    // toggle pairs share one rail slot: one is visible, the other is
+    // opacity: 0 + pointer-events: none — BOTH carry the click handler,
+    // so the visible one is always the working click target (previously
+    // only the moon / hide button had a listener and the invisible one
+    // happened to sit on top, clicking through its blank surface)
+    this.sunMode = document.body.querySelector('.fk-icon-sun');
+    this.showMode = document.body.querySelector('.fk-icon-show');
+    this.hideMode = document.body.querySelector('.fk-icon-hide');
 
     // inline SVG icons for the toggle rail, inline menu and bubble
     decorateIcons(document);
@@ -458,14 +465,20 @@ Mindful.prototype.setHideMode = function(){
     document.documentElement.classList.add(localStorage.getItem('hidemode') || 'show');
 };
 Mindful.prototype.bindNightDayModeListeners = function(){
-    this.nightMode.addEventListener('click', ()=>{
+    // both buttons of a pair toggle to the OTHER mode — the handler reads
+    // the current state, so which button was hit does not matter
+    var toggleNightDay = ()=>{
         localStorage.setItem('daymode', document.documentElement.classList.contains('night') ? 'day' : 'night');
         this.setNightMode();
-    });
-    this.showMode.addEventListener('click', ()=>{
+    };
+    this.nightMode.addEventListener('click', toggleNightDay);
+    this.sunMode.addEventListener('click', toggleNightDay);
+    var toggleHideShow = ()=>{
         localStorage.setItem('hidemode', document.documentElement.classList.contains('show') ? 'hide' : 'show');
         this.setHideMode();
-    });
+    };
+    this.showMode.addEventListener('click', toggleHideShow);
+    this.hideMode.addEventListener('click', toggleHideShow);
 };
 
 module.exports = Mindful;

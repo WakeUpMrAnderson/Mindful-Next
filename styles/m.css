@@ -79,12 +79,17 @@ body .fk-empty {
 .night .fk-icon-nightmode,
 .day .fk-icon-sun {
     transform: scale(.75);
-    opacity: 0
+    opacity: 0;
+    /* the inactive counterpart of a toggle pair must not hit-test —
+       it stacks on the visible button (same rail slot) and previously
+       carried the only click listener through its invisible surface */
+    pointer-events: none
 }
 
 .hide .fk-icon-hide,
 .show .fk-icon-show {
-    opacity: 0
+    opacity: 0;
+    pointer-events: none
 }
 
 .focus .mindful-toggle {

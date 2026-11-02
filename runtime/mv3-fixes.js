@@ -14,25 +14,11 @@
     setDayMode(mode);
   }
 
-  function toggleDayMode() {
-    var isNight = document.documentElement.classList.contains('night');
-    var next = isNight ? 'day' : 'night';
-    localStorage.setItem('daymode', next);
-    setDayMode(next);
-  }
-
-  function bindDarkModeFallback() {
-    document.addEventListener('click', function (ev) {
-      var btn = ev.target && ev.target.closest
-        // Night mode is bound by the mindful plugin itself once the editor
-        // boots; keeping it here would double-toggle every click. The sun
-        // icon has no plugin-side handler, so the fallback stays for it.
-        ? ev.target.closest('.fk-icon-sun')
-        : null;
-      if (!btn) return;
-      toggleDayMode();
-    });
-  }
+  // NOTE: no click-side day/night fallback here — the mindful plugin binds
+  // BOTH buttons of the sun/moon pair (and both eye buttons). A fallback
+  // for the sun existed until the plugin took over both buttons; keeping it
+  // would double-toggle every sun click (plugin flips to day, fallback
+  // flips back to night = "dead sun button").
 
   function bindNotificationDomCleanup() {
     function pruneDismissedNotifications() {
@@ -159,7 +145,6 @@
 
   function init() {
     applySavedDayMode();
-    bindDarkModeFallback();
     applySavedHideMode();
     bindInfoAndHideModeFallback(); // add listener for eye/info buttons
     bindNotificationDomCleanup();
