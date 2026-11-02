@@ -217,7 +217,7 @@ body {
        --editor-max-cap relaxes the 688px cap, and the min() keeps a
        minimum 24px gap per side on narrow windows */
     max-width: min(var(--editor-max-cap, 688px), calc(100vw - 48px));
-    font-size: 16px;
+    font-size: var(--editor-font-size, 16px);
     margin: 0 auto;
     opacity: 0;
     color: #111;

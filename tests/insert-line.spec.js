@@ -197,13 +197,17 @@ test.describe('toolbar icons + insert line', () => {
         await page.waitForFunction(() =>
             window._editor.mutationObserver.pending.length === 0, null, { timeout: 3000 });
         await page.keyboard.press('ArrowUp');
-        expect(await caretBlockText()).toContain('above the line');
+        // the caret move settles asynchronously after the keypress — poll
+        // instead of reading once (the load-flaky assertion)
+        await expect.poll(async () => await caretBlockText(), { timeout: 3000 })
+            .toContain('above the line');
 
         await caretTo('above');
         await page.waitForFunction(() =>
             window._editor.mutationObserver.pending.length === 0, null, { timeout: 3000 });
         await page.keyboard.press('ArrowDown');
-        expect(await caretBlockText()).toContain('below the line');
+        await expect.poll(async () => await caretBlockText(), { timeout: 3000 })
+            .toContain('below the line');
         expect(pageErrors).toEqual([]);
     });
 });

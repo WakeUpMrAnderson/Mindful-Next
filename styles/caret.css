@@ -10,7 +10,7 @@
     position: fixed;
     width: 2px;
     border-radius: 1px;
-    background: #111;
+    background: var(--accent, #111);
     z-index: 9999;
     pointer-events: none;
     will-change: transform, opacity;
@@ -35,7 +35,7 @@
 }
 
 .night .mfk-caret {
-    background: #dadada
+    background: var(--accent, #dadada)
 }
 
 @keyframes mfk-blink {

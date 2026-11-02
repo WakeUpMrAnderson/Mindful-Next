@@ -36,8 +36,9 @@ CSP-compliant codebase. Everything is readable; `dist/` is what Chrome loads.
   Encrypted sync replication, daily snapshots, rollback protection,
   auto-lock, cross-tab lock broadcast. Optional strict unlock demands the
   passphrase on every new tab. Full model in [SECURITY.md](SECURITY.md).
-- **Settings drawer** (gear icon) — editor column width, auto-lock
-  minutes, sync interval, notes export/import, shortcut remapping.
+- **Settings drawer** (gear icon) — editor column width, font size,
+  accent color, auto-lock minutes, sync on/off + interval, notes
+  export/import, shortcut remapping, settings export/import.
 - **Remappable shortcuts** — every editor command's binding can be
   remapped; Chrome-reserved combos and duplicates are rejected; overrides
   persist.

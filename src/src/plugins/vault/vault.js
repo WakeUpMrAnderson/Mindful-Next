@@ -41,22 +41,34 @@ const b64 = {
     decode(b64) { const s = atob(b64); const out = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) out[i] = s.charCodeAt(i); return out; },
 };
 
+function memoryStore(name) {
+    if (typeof chrome === 'undefined') globalThis.chrome = {};
+    chrome.__mem = chrome.__mem || {};
+    chrome.__mem[name] = chrome.__mem[name] || {};
+    const store = chrome.__mem[name];
+    return {
+        get(keys, cb) {
+            const out = {};
+            (Array.isArray(keys) ? keys : [keys]).forEach(k => { if (k in store) out[k] = store[k]; });
+            cb && cb(out);
+        },
+        set(items, cb) { Object.assign(store, items); cb && cb(); },
+        remove(keys, cb) { (Array.isArray(keys) ? keys : [keys]).forEach(k => delete store[k]); cb && cb(); },
+        clear(cb) { for (const k in store) delete store[k]; cb && cb(); },
+    };
+}
+
 function storage(area) {
+    // F-prefs: the settings drawer can switch sync replication off — the
+    // sync area is then served from a discardable in-memory bag (writes
+    // go nowhere persistent, reads return nothing) and toggling off also
+    // clears the already-synced account copy (see the panel handler).
+    if (area === 'sync' && localStorage.getItem('syncoff') === '1') {
+        return memoryStore('__syncoff');
+    }
     if (typeof chrome === 'undefined' || !chrome.storage || !chrome.storage[area]) {
         // http/test fallback: in-memory stand-in with the same shape
-        if (typeof chrome === 'undefined') globalThis.chrome = {};
-        chrome.__mem = chrome.__mem || {};
-        chrome.__mem[area] = chrome.__mem[area] || {};
-        const store = chrome.__mem[area];
-        return {
-            get(keys, cb) {
-                const out = {};
-                (Array.isArray(keys) ? keys : [keys]).forEach(k => { if (k in store) out[k] = store[k]; });
-                cb && cb(out);
-            },
-            set(items, cb) { Object.assign(store, items); cb && cb(); },
-            remove(keys, cb) { (Array.isArray(keys) ? keys : [keys]).forEach(k => delete store[k]); cb && cb(); },
-        };
+        return memoryStore(area);
     }
     return chrome.storage[area];
 }

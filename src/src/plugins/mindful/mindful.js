@@ -60,11 +60,15 @@ Mindful.prototype.init = function(editor){
     this.setNightMode();
     this.setHideMode();
     this.applyEditorWidth();
+    this.applyEditorFontSize();
+    this.applyAccent();
 
-    // the settings panel writes the width in this tab — re-read it live
+    // the settings panel writes these in this tab — re-read them live
     // from other tabs via the storage event
     window.addEventListener('storage', (e) => {
         if (e.key === 'editorwidth') this.applyEditorWidth();
+        if (e.key === 'editorfontsize') this.applyEditorFontSize();
+        if (e.key === 'accent') this.applyAccent();
     });
 };
 
@@ -124,6 +128,28 @@ Mindful.prototype.applyEditorWidth = function(){
     }
 };
 
+Mindful.prototype.applyEditorFontSize = function(){
+    // F-prefs: the editor column's base font size (editorfontsize, 12-24);
+    // m.css reads it through --editor-font-size with the 2016 16px default
+    var v = parseInt(localStorage.getItem('editorfontsize'), 10);
+    if (v >= 12 && v <= 24) {
+        document.documentElement.style.setProperty('--editor-font-size', v + 'px');
+    } else {
+        document.documentElement.style.removeProperty('--editor-font-size');
+    }
+};
+
+Mindful.prototype.applyAccent = function(){
+    // F-prefs: the accent color used by the caret and the native form
+    // controls (accent, a #rrggbb value; absent = the theme defaults)
+    var a = localStorage.getItem('accent');
+    if (a && /^#[0-9a-fA-F]{6}$/.test(a)) {
+        document.documentElement.style.setProperty('--accent', a);
+    } else {
+        document.documentElement.style.removeProperty('--accent');
+    }
+};
+
 Mindful.prototype.toggleSettingsPanel = function(){
     if (!this.settingsPanel) this.buildSettingsPanel();
     this.settingsPanel.classList.toggle('mfk-settings-open');
@@ -179,7 +205,7 @@ Mindful.prototype.ensureSettingsStyles = function(){
         '.mfk-settings-sub { font-size: 11px; color: rgba(0, 0, 0, .62);',
         '    margin: 0 0 14px; }',
         '.mfk-settings-row { display: flex; align-items: center; gap: 14px; }',
-        '.mfk-settings-row input[type="range"] { flex: 1; accent-color: #111; }',
+        '.mfk-settings-row input[type="range"] { flex: 1; accent-color: var(--accent, #111); }',
         '.mfk-settings-row input[type="number"] { width: 64px; padding: 8px 10px;',
         '    box-sizing: border-box; font: inherit; font-size: 12px;',
         '    text-align: center; border: 1px solid rgba(0, 0, 0, .15);',
@@ -217,8 +243,16 @@ Mindful.prototype.ensureSettingsStyles = function(){
         '.mfk-settings-unit { font-size: 11px; color: rgba(0, 0, 0, .62); }',
         '.mfk-settings-label { font-size: 11px; flex: 1; }',
         '.mfk-settings-row-tight { margin-top: 10px; }',
-        '.mfk-settings-row input[type="checkbox"] { accent-color: #111; }',
-        '.night .mfk-settings-row input[type="checkbox"] { accent-color: #dadada; }',
+        '.mfk-settings-row input[type="checkbox"] { accent-color: var(--accent, #111); }',
+        '/* F-prefs: accent swatches */',
+        '.mfk-settings-swatches { gap: 8px; }',
+        '.mfk-swatch { width: 18px; height: 18px; border-radius: 50%;',
+        '    border: 1px solid rgba(0, 0, 0, .25); cursor: pointer; padding: 0;',
+        '    transition: box-shadow .2s ease-in-out, transform .2s ease-in-out; }',
+        '.mfk-swatch:hover { transform: scale(1.12); }',
+        '.mfk-swatch.mfk-swatch-active {',
+        '    box-shadow: 0 0 0 2px #f6f6f6, 0 0 0 3px rgba(0, 0, 0, .5); }',
+        '.night .mfk-settings-row input[type="checkbox"] { accent-color: var(--accent, #dadada); }',
         '.mfk-settings-notes-actions { display: flex; gap: 8px; flex-wrap: wrap; }',
         '/* the vault renders its export/import buttons in here — style them',
         '   like the .mfk-settings-shortcut-combo pills (this sheet loads after',
@@ -274,7 +308,10 @@ Mindful.prototype.ensureSettingsStyles = function(){
         '.night .mfk-settings-close { color: rgba(255, 255, 255, .45); }',
         '.night .mfk-settings-close:hover { color: #dadada; }',
         '.night .mfk-settings-sub { color: rgba(255, 255, 255, .62); }',
-        '.night .mfk-settings-row input[type="range"] { accent-color: #dadada; }',
+        '.night .mfk-settings-row input[type="range"] { accent-color: var(--accent, #dadada); }',
+        '.night .mfk-swatch { border-color: rgba(255, 255, 255, .3); }',
+        '.night .mfk-swatch.mfk-swatch-active {',
+        '    box-shadow: 0 0 0 2px #1a1d21, 0 0 0 3px rgba(255, 255, 255, .6); }',
         '.night .mfk-settings-row input[type="number"] {',
         '    border-color: rgba(255, 255, 255, .2); }',
         '.night .mfk-settings-row input[type="number"]:hover {',
@@ -317,6 +354,20 @@ Mindful.prototype.buildSettingsPanel = function(){
                 '</div>' +
                 '<div class="mfk-settings-bounds"><span>30%</span><span>90%</span></div>' +
                 '<div class="mfk-settings-preview"><i></i></div>' +
+                '<div class="mfk-settings-row mfk-settings-row-tight">' +
+                    '<label class="mfk-settings-label" for="mfk-fontsize">Editor font size</label>' +
+                    '<input type="number" class="mfk-settings-fontsize" id="mfk-fontsize" min="12" max="24" step="1" value="16" aria-label="Editor font size pixels">' +
+                    '<span class="mfk-settings-unit">px</span>' +
+                '</div>' +
+            '</section>' +
+            '<section>' +
+                '<h2>Appearance</h2>' +
+                '<p class="mfk-settings-sub">The accent colors the caret and the form controls. "Start in mindful mode" opens every new tab on the logo screen.</p>' +
+                '<div class="mfk-settings-row mfk-settings-swatches" role="group" aria-label="Accent color"></div>' +
+                '<div class="mfk-settings-row mfk-settings-row-tight">' +
+                    '<label class="mfk-settings-label" for="mfk-hidemodedefault">Start in mindful mode</label>' +
+                    '<input type="checkbox" class="mfk-settings-hidemodedefault" id="mfk-hidemodedefault" aria-label="Start in mindful mode">' +
+                '</div>' +
             '</section>' +
             '<section>' +
                 '<h2>Security</h2>' +
@@ -333,7 +384,11 @@ Mindful.prototype.buildSettingsPanel = function(){
             '</section>' +
             '<section>' +
                 '<h2>Sync</h2>' +
-                '<p class="mfk-settings-sub">How often the encrypted notes replicate to Chrome sync (local saves are never throttled).</p>' +
+                '<p class="mfk-settings-sub">Encrypted notes replicate to Chrome sync (local saves are never throttled). Turning replication off also removes the synced copy from your Google account.</p>' +
+                '<div class="mfk-settings-row mfk-settings-row-tight">' +
+                    '<label class="mfk-settings-label" for="mfk-syncon">Replicate to Chrome sync</label>' +
+                    '<input type="checkbox" class="mfk-settings-syncon" id="mfk-syncon" aria-label="Replicate notes to Chrome sync">' +
+                '</div>' +
                 '<div class="mfk-settings-row">' +
                     '<label class="mfk-settings-label" for="mfk-syncinterval">Replicate every</label>' +
                     '<input type="number" class="mfk-settings-syncinterval" id="mfk-syncinterval" min="10" max="600" step="10" value="10" aria-label="Sync interval seconds">' +
@@ -444,6 +499,66 @@ Mindful.prototype.buildSettingsPanel = function(){
         if (v > 600) v = 600;
         syncInput.value = v;
         localStorage.setItem('syncinterval', String(v));
+    });
+
+    // F-prefs: sync replication toggle — the vault's storage() serves a
+    // discardable bag while off; toggling off also clears the account copy
+    var syncToggle = panel.querySelector('.mfk-settings-syncon');
+    syncToggle.checked = localStorage.getItem('syncoff') !== '1';
+    syncToggle.addEventListener('change', function () {
+        localStorage.setItem('syncoff', syncToggle.checked ? '0' : '1');
+        if (!syncToggle.checked) {
+            // local notes are untouched; re-enabling re-replicates on the
+            // next save
+            try {
+                if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync &&
+                    chrome.storage.sync.clear) chrome.storage.sync.clear(function () {});
+            } catch (e) {}
+        }
+    });
+
+    // F-prefs: editor font size (pairs with the width slider above)
+    var fontInput = panel.querySelector('.mfk-settings-fontsize');
+    fontInput.value = parseInt(localStorage.getItem('editorfontsize'), 10) || 16;
+    fontInput.addEventListener('change', function () {
+        var v = parseInt(fontInput.value, 10);
+        if (isNaN(v)) v = 16;
+        if (v < 12) v = 12;
+        if (v > 24) v = 24;
+        fontInput.value = v;
+        localStorage.setItem('editorfontsize', String(v));
+        self.applyEditorFontSize();
+    });
+
+    // F-prefs: accent swatches ('' = the theme defaults)
+    var SWATCHES = [['', 'Default'], ['#c0392b', 'Red'], ['#d68910', 'Amber'],
+        ['#1e8449', 'Green'], ['#2874a6', 'Blue'], ['#7d3c98', 'Purple']];
+    var swatchRow = panel.querySelector('.mfk-settings-swatches');
+    function renderSwatches() {
+        swatchRow.innerHTML = '';
+        SWATCHES.forEach(function (sw) {
+            var b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'mfk-swatch' + ((localStorage.getItem('accent') || '') === sw[0] ? ' mfk-swatch-active' : '');
+            b.style.background = sw[0] || 'transparent';
+            b.title = sw[1] + ' accent';
+            b.setAttribute('aria-label', b.title);
+            b.addEventListener('click', function () {
+                if (sw[0]) localStorage.setItem('accent', sw[0]);
+                else localStorage.removeItem('accent');
+                self.applyAccent();
+                renderSwatches();
+            });
+            swatchRow.appendChild(b);
+        });
+    }
+    renderSwatches();
+
+    // F-prefs: start-in-mindful default (boot-time; hidemode wins when set)
+    var hideDefault = panel.querySelector('.mfk-settings-hidemodedefault');
+    hideDefault.checked = localStorage.getItem('hidemodedefault') === 'hide';
+    hideDefault.addEventListener('change', function () {
+        localStorage.setItem('hidemodedefault', hideDefault.checked ? 'hide' : 'show');
     });
 
     render(readWidth());
@@ -560,7 +675,9 @@ Mindful.prototype.buildSettingsPanel = function(){
     // everything live.
     var prefStatus = panel.querySelector('.mfk-pref-status');
     var prefFile = panel.querySelector('.mfk-pref-file');
-    var PREF_KEYS = ['editorwidth', 'autolock', 'syncinterval', 'strictunlock', 'daymode', 'hidemode', 'shortcutmap'];
+    var PREF_KEYS = ['editorwidth', 'editorfontsize', 'accent', 'autolock',
+        'syncinterval', 'syncoff', 'strictunlock', 'daymode', 'hidemode',
+        'hidemodedefault', 'shortcutmap'];
     function prefFlash(text) {
         prefStatus.textContent = text;
         clearTimeout(self._prefTimer);
@@ -595,6 +712,12 @@ Mindful.prototype.buildSettingsPanel = function(){
                 var s = data && data.kind === 'settings' && data.settings;
                 if (!s || typeof s !== 'object' || Array.isArray(s)) throw new Error('bad shape');
                 if (s.editorwidth !== undefined) { var w = parseInt(s.editorwidth, 10); if (w >= 30 && w <= 90) localStorage.setItem('editorwidth', String(w)); }
+                if (s.editorfontsize !== undefined) { var fz = parseInt(s.editorfontsize, 10); if (fz >= 12 && fz <= 24) localStorage.setItem('editorfontsize', String(fz)); }
+                if (typeof s.accent === 'string' && (s.accent === '' || /^#[0-9a-fA-F]{6}$/.test(s.accent))) {
+                    if (s.accent) localStorage.setItem('accent', s.accent); else localStorage.removeItem('accent');
+                }
+                if (s.syncoff === '0' || s.syncoff === '1') localStorage.setItem('syncoff', s.syncoff);
+                if (s.hidemodedefault === 'show' || s.hidemodedefault === 'hide') localStorage.setItem('hidemodedefault', s.hidemodedefault);
                 if (s.autolock !== undefined) { var al = parseInt(s.autolock, 10); if (al >= 1 && al <= 720) localStorage.setItem('autolock', String(al)); }
                 if (s.syncinterval !== undefined) { var si = parseInt(s.syncinterval, 10); if (si >= 10 && si <= 600) localStorage.setItem('syncinterval', String(si)); }
                 if (s.strictunlock === '0' || s.strictunlock === '1') {
@@ -612,10 +735,16 @@ Mindful.prototype.buildSettingsPanel = function(){
                     renderShortcutRows();
                 }
                 self.applyEditorWidth();
+                self.applyEditorFontSize();
+                self.applyAccent();
                 render(readWidth());
                 autolockInput.value = parseInt(localStorage.getItem('autolock'), 10) || 15;
                 strictInput.checked = localStorage.getItem('strictunlock') === '1';
                 syncInput.value = parseInt(localStorage.getItem('syncinterval'), 10) || 10;
+                fontInput.value = parseInt(localStorage.getItem('editorfontsize'), 10) || 16;
+                syncToggle.checked = localStorage.getItem('syncoff') !== '1';
+                hideDefault.checked = localStorage.getItem('hidemodedefault') === 'hide';
+                renderSwatches();
                 prefFlash('imported');
             } catch (err) {
                 prefFlash('invalid file');
@@ -627,7 +756,7 @@ Mindful.prototype.buildSettingsPanel = function(){
 
 Mindful.prototype.setHideMode = function(){
     document.documentElement.classList.remove('hide', 'show');
-    document.documentElement.classList.add(localStorage.getItem('hidemode') || 'show');
+    document.documentElement.classList.add(localStorage.getItem('hidemode') || localStorage.getItem('hidemodedefault') || 'show');
     // the settings panel belongs to the writing UI — entering hide mode
     // with it open would leave it floating over the Mindful logo screen
     if (document.documentElement.classList.contains('hide') &&

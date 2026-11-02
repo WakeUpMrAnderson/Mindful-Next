@@ -367,4 +367,51 @@ test.describe('settings side panel', () => {
         expect(status).toBe('invalid file');
         expect(pageErrors).toEqual([]);
     });
+
+    test('extended rows: font size, accent, start-in-mindful, sync toggle persist and apply', async ({ page }) => {
+        await INIT(page);
+        await page.locator('.fk-icon-settings').dispatchEvent('click');
+        await page.waitForFunction(() =>
+            document.querySelector('.mfk-settings-panel').classList.contains('mfk-settings-open'),
+            null, { timeout: 3000 });
+        const out = await page.evaluate(() => {
+            // font size: stepper persists + applies the css var
+            const font = document.querySelector('.mfk-settings-fontsize');
+            font.closest('.mfk-stepper').querySelectorAll('.mfk-stepper-btn')[0].click();
+            const fontSize = {
+                stored: localStorage.getItem('editorfontsize'),
+                cssVar: document.documentElement.style.getPropertyValue('--editor-font-size'),
+            };
+            // accent: a swatch persists + applies
+            const swatches = document.querySelectorAll('.mfk-swatch');
+            swatches[1].click();   // red (default swatch is index 0)
+            const accent = {
+                stored: localStorage.getItem('accent'),
+                cssVar: document.documentElement.style.getPropertyValue('--accent'),
+                active: ((document.querySelector('.mfk-swatch-active') || {}).title || '') === 'Red accent',
+            };
+            // start-in-mindful default
+            const hide = document.querySelector('.mfk-settings-hidemodedefault');
+            hide.click();
+            const hideMode = localStorage.getItem('hidemodedefault');
+            // sync toggle off: writes the flag and clears the sync bag
+            const toggle = document.querySelector('.mfk-settings-syncon');
+            toggle.click();
+            const sync = {
+                flag: localStorage.getItem('syncoff'),
+                bagEmpty: !chrome.__mem || !chrome.__mem.sync ||
+                    Object.keys(chrome.__mem.sync).length === 0,
+            };
+            return { fontSize: fontSize, accent: accent, hideMode: hideMode, sync: sync };
+        });
+        expect(out.fontSize.stored).toBe('17');
+        expect(out.fontSize.cssVar).toBe('17px');
+        expect(out.accent.stored).toBe('#c0392b');
+        expect(out.accent.cssVar).toBe('#c0392b');
+        expect(out.accent.active).toBe(true);
+        expect(out.hideMode).toBe('hide');
+        expect(out.sync.flag).toBe('1');
+        expect(out.sync.bagEmpty).toBe(true);
+        expect(pageErrors).toEqual([]);
+    });
 });
