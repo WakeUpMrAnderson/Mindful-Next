@@ -47,7 +47,8 @@ CSP-compliant codebase. Everything is readable; `dist/` is what Chrome loads.
 - **Smooth caret** — a Word-style caret with an eased glide, soft
   accent glow, gentle breathe and a ripple on every keystroke (honors
   reduced motion).
-- **Day / night / mindful mode** — hide the editor, keep the logo.
+- **Day / night / mindful mode** — the theme follows the OS on first
+  run; hide the editor, keep the logo.
 - **Runs on modern Chrome** — Manifest V3, `script-src 'self'` CSP with
   zero `eval`/`new Function`; no frameworks.
 - **Tested** — a 75-check Playwright suite (editor smoke, caret, settings,

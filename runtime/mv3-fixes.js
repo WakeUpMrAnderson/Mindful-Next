@@ -10,8 +10,14 @@
   }
 
   function applySavedDayMode() {
-    var mode = localStorage.getItem('daymode') || 'day';
-    setDayMode(mode);
+    // MUST mirror mindful.js setNightMode's fallback chain: a saved
+    // daymode wins; first run follows the OS. A bare 'day' fallback here
+    // would clobber the bundle's OS-aware night right after it applied.
+    var stored = localStorage.getItem('daymode');
+    if (!stored && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      stored = 'night';
+    }
+    setDayMode(stored || 'day');
   }
 
   // NOTE: no click-side day/night fallback here — the mindful plugin binds

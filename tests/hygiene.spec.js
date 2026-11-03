@@ -321,19 +321,25 @@ test.describe('phase 3 hygiene', () => {
         expect(state.aboveFirstLine).toBe(true);
         expect(pageErrors).toEqual([]);
     });
-});
 
     test('first run follows the OS theme; an explicit choice wins after', async ({ page }) => {
         await page.emulateMedia({ colorScheme: 'dark' });
-        await page.reload();
+        // goto, not reload: a reloaded document can read matchMedia
+        // before the emulation is re-applied and bake in the wrong theme
+        await page.goto('/dist/index.html');
         await page.waitForFunction(() => window._editor);
-        expect(await page.evaluate(() => document.documentElement.classList.contains('night'))).toBe(true);
+        await expect.poll(() => page.evaluate(() =>
+            document.documentElement.classList.contains('night'))).toBe(true);
         // first-run only — the OS never writes the user's choice
         expect(await page.evaluate(() => localStorage.getItem('daymode'))).toBe(null);
-        await page.evaluate(() => localStorage.setItem('daymode', 'day'));
-        await page.reload();
+        // the user's explicit choice — re-applied by a LATER init script
+        // (INIT's localStorage.clear runs first: init scripts execute in
+        // registration order), otherwise the harness would wipe it
+        await page.addInitScript(() => localStorage.setItem('daymode', 'day'));
+        await page.goto('/dist/index.html');
         await page.waitForFunction(() => window._editor);
-        expect(await page.evaluate(() => document.documentElement.classList.contains('day'))).toBe(true);
+        await expect.poll(() => page.evaluate(() =>
+            document.documentElement.classList.contains('day'))).toBe(true);
         expect(pageErrors).toEqual([]);
     });
 
@@ -349,9 +355,11 @@ test.describe('phase 3 hygiene', () => {
         expect(day.bodyBg).toBe('rgb(255, 255, 255)');
         expect(day.bodyColor).toBe('rgb(0, 0, 0)');
         expect(day.bodyMaxWidth).toBe('none');
-        // night theme must print paper-safe too
-        await page.evaluate(() => localStorage.setItem('daymode', 'night'));
-        await page.reload();
+        // night theme must print paper-safe too — boot night via the OS
+        // emulation (INIT clears localStorage on every navigation, so a
+        // setItem+reload would be wiped)
+        await page.emulateMedia({ colorScheme: 'dark' });
+        await page.goto('/dist/index.html');
         await page.waitForFunction(() => window._editor);
         await page.emulateMedia({ media: 'print' });
         const night = await page.evaluate(() => ({
