@@ -425,3 +425,39 @@ button.mindful-toggle:focus-visible {
 button.mindful-toggle svg {
     display: block
 }
+
+/* Print: the writing is the document — rail, overlays, theme chrome and
+   the caret get out of the way of paper. */
+@media print {
+    .mindful-toggle,
+    .mfk-caret,
+    .mnd-logo,
+    .fk-ui,
+    .mfk-settings-panel,
+    .vault-overlay,
+    .vault-status,
+    .vault-sync-notice,
+    .notification {
+        display: none !important
+    }
+    body,
+    .night body {
+        max-width: none;
+        width: auto;
+        padding: 0;
+        margin: 0;
+        background: #fff;
+        color: #000;
+        animation: none;
+        opacity: 1;
+        transition: none
+    }
+    .night article,
+    .night h2,
+    .night blockquote {
+        color: #000
+    }
+    .night hr:after {
+        background: #000
+    }
+}

@@ -322,3 +322,45 @@ test.describe('phase 3 hygiene', () => {
         expect(pageErrors).toEqual([]);
     });
 });
+
+    test('first run follows the OS theme; an explicit choice wins after', async ({ page }) => {
+        await page.emulateMedia({ colorScheme: 'dark' });
+        await page.reload();
+        await page.waitForFunction(() => window._editor);
+        expect(await page.evaluate(() => document.documentElement.classList.contains('night'))).toBe(true);
+        // first-run only — the OS never writes the user's choice
+        expect(await page.evaluate(() => localStorage.getItem('daymode'))).toBe(null);
+        await page.evaluate(() => localStorage.setItem('daymode', 'day'));
+        await page.reload();
+        await page.waitForFunction(() => window._editor);
+        expect(await page.evaluate(() => document.documentElement.classList.contains('day'))).toBe(true);
+        expect(pageErrors).toEqual([]);
+    });
+
+    test('print stylesheet strips chrome and forces paper-safe colors', async ({ page }) => {
+        await page.emulateMedia({ media: 'print' });
+        const day = await page.evaluate(() => ({
+            rail: getComputedStyle(document.querySelector('.fk-icon-settings')).display,
+            bodyBg: getComputedStyle(document.body).backgroundColor,
+            bodyColor: getComputedStyle(document.body).color,
+            bodyMaxWidth: getComputedStyle(document.body).maxWidth,
+        }));
+        expect(day.rail).toBe('none');
+        expect(day.bodyBg).toBe('rgb(255, 255, 255)');
+        expect(day.bodyColor).toBe('rgb(0, 0, 0)');
+        expect(day.bodyMaxWidth).toBe('none');
+        // night theme must print paper-safe too
+        await page.evaluate(() => localStorage.setItem('daymode', 'night'));
+        await page.reload();
+        await page.waitForFunction(() => window._editor);
+        await page.emulateMedia({ media: 'print' });
+        const night = await page.evaluate(() => ({
+            bodyBg: getComputedStyle(document.body).backgroundColor,
+            h2: getComputedStyle(document.querySelector('article h2') || document.querySelector('article')).color,
+        }));
+        expect(night.bodyBg).toBe('rgb(255, 255, 255)');
+        expect(night.h2).toBe('rgb(0, 0, 0)');
+        await page.emulateMedia({ media: null });
+        expect(pageErrors).toEqual([]);
+    });
+});

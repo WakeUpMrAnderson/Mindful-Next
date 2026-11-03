@@ -109,7 +109,13 @@ Mindful.prototype.initAnchorBehavior = function(){
 
 Mindful.prototype.setNightMode = function(){
     document.documentElement.classList.remove('night', 'day');
-    document.documentElement.classList.add(localStorage.getItem('daymode') || 'day');
+    // first run follows the OS preference; the stored daymode (the
+    // user's explicit choice) always wins once set
+    var stored = localStorage.getItem('daymode');
+    if (!stored && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        stored = 'night';
+    }
+    document.documentElement.classList.add(stored || 'day');
 };
 
 Mindful.prototype.applyEditorWidth = function(){
